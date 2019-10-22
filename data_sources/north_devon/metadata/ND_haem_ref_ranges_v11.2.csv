@@ -1,0 +1,43 @@
+Name,Completed on,Code,Sex,Age,LC/CRR,Low,High,Units,Reference,Comment/Code
+Activated Partial Thromboplastin Time,Haemv11.2,APT1,B,All,,25,36,seconds,Local,
+Activated Partial Thromboplastin Ratio,Haemv11.2,APTR,B,All,,0.82,1.18,ratio,Local,
+Antithrombin activity,Haemv11.2,AT3,B,All,,80,120,percent,Stago insert,
+Basophil,Haemv11.2,BASO,B,All,,0.01,0.25,bn/l,Local,
+CD4 cell count,Haemv11.2,CD4,B,All,,397,1397,cells/ul,Local,
+CD4 cell count,Haemv11.2,CD4#,B,All,,397,1397,cells/ul,Local,
+Eosinophils,Haemv11.2,EOS,B,All,,0.04,0.4,bn/l,Local,
+Erythrocyte Sedimentation Rate,Haemv11.2,ESR,M,All,,0,12,mm/hr,Dacie Ed. 5,
+Erythrocyte Sedimentation Rate,Haemv11.2,ESR,F,All,,0,15,mm/hr,Dacie Ed. 5,
+Factor VII,Haemv11.2,F7,B,All,,55,170,percent,Stago insert,
+Factor VIII inhibitors,Haemv11.2,F8I,B,All,,0,1,BU/ml,Dade insert,>10 strong result
+D Dimers,Haemv11.2,FDP,B,All,,0,0.15,mgs/l,Local,(0.25 cutoff for DVT)
+D Dimers,Haemv11.2,FDP1,B,All,,0,0.15,mgs/l,Local,(0.25 cutoff for DVT)
+Fibrinogen,Haemv11.2,FIB,B,All,,190,410,mgs/dl,Local,"""Clauss"""
+Free Protein S Antigen,Haemv11.2,FPS,M,All,,77,148,percent,Stago insert,
+Free Protein S Antigen,Haemv11.2,FPS,F,All,,50,134,percent,Stago insert,"except pregnancy, oral contraceptive HRT"
+Haemoglobin,Haemv11.2,HB,M,All,,130,170,g/l,Dacie Ed. 5,
+Haemoglobin,Haemv11.2,HB,F,All,,115,160,g/l,Dacie Ed. 5,
+Haemoglobin A2,Haemv11.2,HBA2,B,All,,2,3.5,percent,Tosoh,?thal trait 3.5 - 6.3%
+Foetal Haemoglobin,Haemv11.2,HBF,B,All,,0,2,percent,Tosoh,
+Haematocrit,Haemv11.2,HCT,M,All,,0.4,0.55,l/l,Dacie Ed. 5,
+Haematocrit,Haemv11.2,HCT,F,All,,0.35,0.45,l/l,Dacie Ed. 5,
+Lupus LUA1,Haemv11.2,LUA1,B,All,,0,1.2,ratio,Stago insert,
+Lupus LUA3,Haemv11.2,LUA3,B,All,,0,1.2,ratio,Stago insert,
+Lymphocyte,Haemv11.2,LYMP,B,All,,1,3.5,bn/l,Local,
+Mean Corpuscular Haemoglobin,Haemv11.2,MCH,B,All,,27,32,pg,Dacie Ed. 5,
+Mean Corpuscular Haemoglobin Concentration ,Haemv11.2,MCHC,B,All,,300,360,g/l,Hariba,
+Mean Corpuscular Volume,Haemv11.2,MCV,B,All,,80,100,fl,Dacie Ed. 5,
+Monocyte,Haemv11.2,MONO,B,All,,0.1,1,bn/l,Local,
+Platelet Count,Haemv11.2,PC,B,All,,150,400,bn/l,Dacie Ed. 5,
+Protein C,Haemv11.2,PROC,B,All,,70,130,percent,Stago insert,
+Prothrombin time,Haemv11.2,PT,B ,All,,13,16,seconds,Local,INR 0.9 - 1.1 (standardised)
+Prothrombin time,Haemv11.2,PT1,B ,All,,13,16,seconds,Local,INR 0.9 - 1.1 (standardised)
+Plasma Viscosity,Haemv11.2,PV,B,All,,1.5,1.72,cps,Dacie Ed. 5,
+Red Blood Cell,Haemv11.2,RBC,M,All,,4.5,6.5,tn/l,Dacie Ed. 5,
+Red Blood Cell,Haemv11.2,RBC,F,All,,3.8,5.8,tn/l,Dacie Ed. 5,
+Red Cell Distribution Width,Haemv11.2,RDW,B,All,,11.5,16,(CV),Dacie Ed. 5,
+Reticulyte Count,Haemv11.2,RET#,B,All,,25,82,bn/l,Dacie Ed. 5,
+Reticulyte Percent,Haemv11.2,RET%,B,All,,0,2,percent,Dacie Ed. 5,
+Von Willebrand Activity,Haemv11.2,VWAC,B,All,,50,200,percent,Exeter,
+Von Willebrand Antigen,Haemv11.2,VWAG,B,All,,45,160,percent,Exeter,
+White Blood Cell,Haemv11.2,WBC,B,All,,4,11,bn/l,Dacie Ed. 5,
