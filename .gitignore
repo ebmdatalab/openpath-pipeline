@@ -1,0 +1,10 @@
+venv
+*~
+.~lock*
+.ipynb_checkpoints
+__pycache__/
+#*#
+*pyc
+converted*csv
+combined*.csv
+*log
