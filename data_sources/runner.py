@@ -54,9 +54,10 @@ def main():
         help="Logging verbosity; -v is ERROR, -vv WARNING, etc",
     )
     parser.add_argument(
-        "--multiprocessing", help="Use multiprocessing", action="store_true"
+        "--no-multiprocessing", help="Use multiprocessing", action="store_true"
     )
     args = parser.parse_args()
+    multiprocessing = not args.no_multiprocessing
     log_level = 50 - (args.verbose * 10)
     config = labs[args.lab]
     process_files(
@@ -67,7 +68,7 @@ def main():
         config.row_iterator,
         config.drop_unwanted_data,
         config.normalise_data,
-        args.multiprocessing,
+        multiprocessing,
     )
 
 
