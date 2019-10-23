@@ -1,16 +1,14 @@
-import argparse
 import os
 import zipfile
 import tempfile
 import csv
 from datetime import datetime
 import re
-from pathlib import Path
 
-from anonymise import StopProcessing
-from anonymise import process_files
+from lib.anonymise import StopProcessing
 
-cwd = Path(__file__).parent
+LAB_CODE = "cornwall"
+REFERENCE_RANGES = "cornwall_ref_ranges.csv"
 
 
 def row_iterator(filename):
@@ -27,21 +25,19 @@ def row_iterator(filename):
                 yield row
 
 
-def filter_to_gp_or_a_and_e(row):
-    if row["SpecialtyCode"] not in ["600", "180"]:
-        raise StopProcessing()
-
-
-def drop_bad_data(row):
+def drop_unwanted_data(row_anonymiser):
     """Drop any rows of test data, obviously corrupted data, or otherwise
         unusable data (e.g. no information about the patient's age or the
         practice)
         """
+    row = row_anonymiser.row
     if not row["PatientDOB"]:
+        raise StopProcessing()
+    if row["SpecialtyCode"] not in ["600", "180"]:
         raise StopProcessing()
 
 
-def normalise_data(self):
+def normalise_data(row_anonymiser):
     """Convert test results to float wherever possible; extract a
     direction if required; set age from DOB; format the date to
     %Y/%m/01.
@@ -49,18 +45,21 @@ def normalise_data(self):
     Additionally, rename the fields to the standardised list.
 
     """
+    row = row_anonymiser.row
     # Replace rows containing floats and percentages with just the floats.
     # See https://github.com/ebmdatalab/openpathology/issues/87#issuecomment-512765880
     #
     # A typical cll looks like `0.03 0.5%`
     FLOAT_PERCENT_RX = re.compile(r"([0-9.])+ +[0-9. ]+%")
-    result = re.sub(FLOAT_PERCENT_RX, r"\1", self.row["TestResult"])
-    order_date = datetime.strptime(self.row["TestOrderDate"], "%Y-%m-%d %H:%M:%S")
-    self.row["month"] = order_date.strftime("%Y/%m/01")
+    result = re.sub(FLOAT_PERCENT_RX, r"\1", row_anonymiser.row["TestResult"])
+    order_date = datetime.strptime(
+        row_anonymiser.row["TestOrderDate"], "%Y-%m-%d %H:%M:%S"
+    )
+    row["month"] = order_date.strftime("%Y/%m/01")
     direction = None
     try:
-        dob = datetime.strptime(self.row["PatientDOB"], "%m-%Y")
-        self.row["age"] = (order_date - dob).days / 365
+        dob = datetime.strptime(row["PatientDOB"], "%m-%Y")
+        row["age"] = (order_date - dob).days / 365
     except ValueError:
         # Couldn't parse age. Drop row.
         raise StopProcessing()
@@ -73,8 +72,8 @@ def normalise_data(self):
             result = float(result[1:]) + 0.0000001
         else:
             result = float(result)
-        self.row["test_result"] = result
-        self.row["direction"] = direction
+        row["test_result"] = result
+        row["direction"] = direction
 
         col_mapping = {
             "month": "month",
@@ -87,30 +86,8 @@ def normalise_data(self):
         }
         mapped = {}
         for k, v in col_mapping.items():
-            mapped[k] = self.row[v]
-        self.row = mapped
+            mapped[k] = row[v]
+        row_anonymiser.row = mapped
     except ValueError:
-        self.log_info("Unparseable result %s", result)
+        row_anonymiser.log_info("Unparseable result %s", result)
         raise StopProcessing()
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Generate suitably anonymised subset of raw input data"
-    )
-    parser.add_argument("lab", help="Lab code (used for naming files)")
-    parser.add_argument("files", nargs="+", help="Monthly input files")
-    parser.add_argument(
-        "--multiprocessing", help="Use multiprocessing", action="store_true"
-    )
-    args = parser.parse_args()
-    filters = (filter_to_gp_or_a_and_e, drop_bad_data)
-    normaliser = normalise_data
-    process_files(
-        args.lab,
-        args.files,
-        row_iterator,
-        filters,
-        normalise_data,
-        args.multiprocessing,
-    )

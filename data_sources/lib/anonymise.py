@@ -49,9 +49,9 @@ class StopProcessing(Exception):
 
 
 @lru_cache(maxsize=1)
-def ref_ranges():
+def get_ref_ranges(path):
     # columns must be ["test", "min_adult_age", "max_adult_age", "low_F", "low_M", "high_F", "high_M"]
-    with open("cornwall_ref_ranges.csv", newline="", encoding="ISO-8859-1") as f:
+    with open(path, newline="", encoding="ISO-8859-1") as f:
         lines = sorted(list(csv.DictReader(f)), key=lambda x: x["test"])
     return lines
 
@@ -65,11 +65,14 @@ def configLogger():
 
 
 class RowAnonymiser:
-    def __init__(self, lab, drop_unwanted_data, normalise_data, log_level=None):
+    def __init__(self, lab, ranges, drop_unwanted_data, normalise_data, log_level=None):
         self.orig_row = None
         self.row = None
+        self.ranges = ranges
+
         self.drop_unwanted_data = drop_unwanted_data
         self.normalise_data = normalise_data
+        # self.reference_ranges_path = reference_ranges_path
 
         streamhandler = logging.StreamHandler()
         logging.basicConfig(
@@ -104,11 +107,10 @@ class RowAnonymiser:
         if test_code in NO_REF_RANGES:
             self.row["result_category"] = ERR_NO_REF_RANGE
             return self.row
-        ranges = ref_ranges()
         last_matched_test = None
         found = False
         return_code = None
-        for ref_range in ranges:
+        for ref_range in self.ranges:
             if ref_range["test"] == test_code:
                 found = True
                 if not isinstance(result, float):
@@ -198,7 +200,7 @@ class RowAnonymiser:
 
     def process_row(self):
         try:
-            self.drop_unwanted_data(self.row)
+            self.drop_unwanted_data(self)
             self.normalise_data(self)
             self.convert_to_result()
         except StopProcessing:
@@ -214,6 +216,7 @@ class Anonymiser:
     def __init__(
         self,
         lab,
+        reference_ranges,
         row_iterator=None,
         drop_unwanted_data=None,
         normalise_data=None,
@@ -226,10 +229,15 @@ class Anonymiser:
         self.normalise_data = normalise_data
         self.normalise_data_checked = False
         self.log_level = log_level
+        self.ref_ranges = get_ref_ranges(reference_ranges)
 
     def feed_file(self, filename):
         row_anonymiser = RowAnonymiser(
-            self.lab, self.drop_unwanted_data, self.normalise_data, self.log_level
+            self.lab,
+            self.ref_ranges,
+            self.drop_unwanted_data,
+            self.normalise_data,
+            self.log_level,
         )
         for raw_row in self.row_iterator(filename):
             row_anonymiser.feed(raw_row)
@@ -238,7 +246,6 @@ class Anonymiser:
                     assert set(row_anonymiser.row.keys()) == set(
                         REQUIRED_NORMALISED_KEYS
                     )
-
                     self.normalise_data_checked = True
 
                 self.rows.append(row_anonymiser.row)
@@ -279,12 +286,22 @@ def combine_csvs(lab):
     print("Combined data at {}".format(outfile_path))
 
 
-def process_file(lab, row_iterator, drop_unwanted_data, normalise_data, filename):
+def process_file(
+    lab,
+    reference_ranges,
+    log_level,
+    row_iterator,
+    drop_unwanted_data,
+    normalise_data,
+    filename,
+):
     anonymiser = Anonymiser(
         lab,
+        reference_ranges=reference_ranges,
         row_iterator=row_iterator,
         drop_unwanted_data=drop_unwanted_data,
         normalise_data=normalise_data,
+        log_level=log_level,
     )
     anonymiser.feed_file(filename)
     anonymiser.to_csv()
@@ -292,6 +309,8 @@ def process_file(lab, row_iterator, drop_unwanted_data, normalise_data, filename
 
 def process_files(
     lab,
+    reference_ranges,
+    log_level,
     filenames,
     row_iterator,
     drop_unwanted_data,
@@ -300,7 +319,13 @@ def process_files(
 ):
     filenames = sorted(filenames)
     process_file_partial = partial(
-        process_file, lab, row_iterator, drop_unwanted_data, normalise_data
+        process_file,
+        lab,
+        reference_ranges,
+        log_level,
+        row_iterator,
+        drop_unwanted_data,
+        normalise_data,
     )
     if multiprocessing:
         with Pool() as pool:

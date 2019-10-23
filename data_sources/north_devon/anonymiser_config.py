@@ -1,14 +1,11 @@
-import argparse
-import os
-import zipfile
-import tempfile
 from openpyxl import load_workbook
 from datetime import datetime
-import re
 from dateutil.relativedelta import relativedelta
 
-from anonymise import StopProcessing
-from anonymise import process_files
+from lib.anonymise import StopProcessing
+
+LAB_CODE = "nd"
+REFERENCE_RANGES = "north_devon_reference_ranges.csv"
 
 
 def row_iterator(filename):
@@ -52,20 +49,20 @@ def _date_string_to_past_datetime(date_str):
     return d
 
 
-def drop_unwanted_data(row):
+def drop_unwanted_data(row_anonymiser):
     """Drop any rows of test data, obviously corrupted data, or otherwise
         unusable data (e.g. no information about the patient's age or the
         practice)
         """
     # Dropping %s null patients (see #62) <- XXX
-    if not row["dob"]:
+    if not row_anonymiser.row["dob"]:
         raise StopProcessing()
     # only GP and A&E
-    if row["patient_category"] not in ["GP", "ZE"]:
+    if row_anonymiser.row["patient_category"] not in ["GP", "ZE"]:
         raise StopProcessing()
 
 
-def normalise_data(self):
+def normalise_data(row_anonymiser):
     """Convert test results to float wherever possible; extract a
     direction if required; set age from DOB; format the date to
     %Y/%m/01.
@@ -73,6 +70,7 @@ def normalise_data(self):
     Additionally, rename the fields to the standardised list.
 
     """
+    row = row_anonymiser.row
     #  Where codes have changed over time, normalise them back to
     #  their current incarnation
     test_code_changes = {
@@ -84,15 +82,15 @@ def normalise_data(self):
         "INR1": "INR",
         "PT1": "PT",
     }
-    self.row["test_code"] = test_code_changes.get(
-        self.row["test_code"], self.row["test_code"]
+    row_anonymiser.row["test_code"] = test_code_changes.get(
+        row["test_code"], row["test_code"]
     )
-    dob = _date_string_to_past_datetime(self.row["dob"])
-    collected = _date_string_to_past_datetime(self.row["date_collected"])
+    dob = _date_string_to_past_datetime(row["dob"])
+    collected = _date_string_to_past_datetime(row["date_collected"])
 
-    self.row["age"] = (collected - dob).days / 365
-    result = self.row["result"]
-    self.row["month"] = collected.strftime("%Y/%m/01")
+    row["age"] = (collected - dob).days / 365
+    result = row["result"]
+    row["month"] = collected.strftime("%Y/%m/01")
     direction = None
     try:
         if result.startswith("<"):
@@ -103,8 +101,8 @@ def normalise_data(self):
             result = float(result[1:]) + 0.0000001
         else:
             result = float(result)
-        self.row["test_result"] = result
-        self.row["direction"] = direction
+        row["test_result"] = result
+        row["direction"] = direction
 
         col_mapping = {
             "month": "month",
@@ -117,31 +115,8 @@ def normalise_data(self):
         }
         mapped = {}
         for k, v in col_mapping.items():
-            mapped[k] = self.row[v]
-        self.row = mapped
+            mapped[k] = row[v]
+        row_anonymiser.row = mapped
     except ValueError:
-        self.log_info("Unparseable result %s", result)
+        row_anonymiser.log_info("Unparseable result %s", result)
         raise StopProcessing()
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Generate suitably anonymised subset of raw input data"
-    )
-
-    parser.add_argument("lab", help="Lab code (used for naming files)")
-    parser.add_argument("files", nargs="+", help="Monthly input files")
-    parser.add_argument(
-        "--multiprocessing", help="Use multiprocessing", action="store_true"
-    )
-    args = parser.parse_args()
-    filters = (drop_unwanted_data,)
-    normaliser = normalise_data
-    process_files(
-        args.lab,
-        args.files,
-        row_iterator,
-        filters,
-        normalise_data,
-        args.multiprocessing,
-    )
