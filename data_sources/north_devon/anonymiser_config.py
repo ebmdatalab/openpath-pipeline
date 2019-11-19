@@ -29,10 +29,13 @@ def row_iterator(filename):
         "patient_numer",
         "patient_category",
     ]
-    wb = load_workbook(filename)
+
+    os.symlink(os.path.split(filename)[-1], filename + ".xlsx")
+    wb = load_workbook(filename + ".xlsx")
     ws = wb.active
     for row in ws.iter_rows():
         yield dict(zip(cols, [str(x.value) for x in row]))
+    os.remove(filename + ".xlsx")
 
 
 def _date_string_to_past_datetime(date_str):
