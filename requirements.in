@@ -1,0 +1,6 @@
+# For pypy compatibility, we pin to versions current at the time
+# the packaged pypy available to us was built
+# See also: https://stackoverflow.com/a/54381076/559140
+numpy<1.16
+pandas<0.22
+openpyxl

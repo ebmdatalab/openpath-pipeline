@@ -3,8 +3,13 @@ import os
 import sys
 
 from lib.anonymise import process_files
-from pathlib import Path
 import importlib
+
+
+try:
+    ModuleNotFoundError
+except NameError:
+    ModuleNotFoundError = ImportError
 
 
 def list_labs():
@@ -34,8 +39,10 @@ def list_labs():
                             f"Error: more than one definition for LAB_CODE {config.LAB_CODE}"
                         )
                     configs[config.LAB_CODE] = config
-            except ModuleNotFoundError:
-                pass
+            except ModuleNotFoundError as e:
+                print(e.name)
+                if not e.name.endswith("anonymiser_config"):
+                    raise
     return configs
 
 
@@ -62,7 +69,7 @@ def main():
     config = labs[args.lab]
     process_files(
         config.LAB_CODE,
-        Path(config.__file__).parent / config.REFERENCE_RANGES,
+        os.path.join(os.path.dirname(config.__file__), config.REFERENCE_RANGES),
         log_level,
         args.files,
         config.row_iterator,
