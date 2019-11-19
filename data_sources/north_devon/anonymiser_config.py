@@ -1,3 +1,4 @@
+import os
 from openpyxl import load_workbook
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -57,8 +58,8 @@ def drop_unwanted_data(row_anonymiser):
         unusable data (e.g. no information about the patient's age or the
         practice)
         """
-    # Dropping %s null patients (see #62) <- XXX
-    if not row_anonymiser.row["dob"]:
+    # Dropping %s null patients (see #62)
+    if row_anonymiser.row["dob"] in ["None", ""]:
         raise StopProcessing()
     # only GP and A&E
     if row_anonymiser.row["patient_category"] not in ["GP", "ZE"]:
@@ -88,7 +89,11 @@ def normalise_data(row_anonymiser):
     row_anonymiser.row["test_code"] = test_code_changes.get(
         row["test_code"], row["test_code"]
     )
-    dob = _date_string_to_past_datetime(row["dob"])
+    try:
+        dob = _date_string_to_past_datetime(row["dob"])
+    except ValueError:
+        row_anonymiser.log_error("Unable to parse dob")
+        raise
     collected = _date_string_to_past_datetime(row["date_collected"])
 
     row["age"] = (collected - dob).days / 365
