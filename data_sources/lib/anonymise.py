@@ -121,7 +121,7 @@ class RowAnonymiser:
                 if last_matched_test and last_matched_test != ref_range["test"]:
                     # short-circuit as the rows should be sorted by test
                     self.log_info("No matching ref range found")
-                    return_code = ERR_INVALID_REF_RANGE
+                    return_code = ERR_NO_REF_RANGE
                     break
                 last_matched_test = ref_range["test"]
                 if age >= int(float(ref_range["min_adult_age"])) and age < int(
