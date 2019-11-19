@@ -2,12 +2,12 @@
 
 This folder contains code for anonymisation of raw source data.
 
-Given input data in a variety of row-oriented formats, one month per
-file, convert it such that all raw test result values are aggregated
-to "within range", "under range", "over range", a variety of error
-codes indicating that the range could not be computed (for example,
-because we currently don't consider children for reference ranges; or
-because a value was non-numeric).
+Given input data in a variety of row-oriented formats, container one
+month of data per file, convert it such that all raw test result
+values are aggregated to "within range", "under range", "over range",
+or a variety of error codes indicating that the range could not be
+computed (for example, because we currently don't consider children
+for reference ranges; or because a value was non-numeric).
 
 To run the cornwall processor, for example:
 
