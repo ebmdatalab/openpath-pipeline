@@ -32,7 +32,7 @@ def row_iterator(filename):
     ]
 
     os.symlink(os.path.split(filename)[-1], filename + ".xlsx")
-    wb = load_workbook(filename + ".xlsx")
+    wb = load_workbook(filename + ".xlsx", read_only=True)
     ws = wb.active
     for row in ws.iter_rows():
         yield dict(zip(cols, [str(x.value) for x in row]))
