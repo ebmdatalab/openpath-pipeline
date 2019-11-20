@@ -14,7 +14,7 @@ from functools import lru_cache
 
 
 RANGE_CEILING = 99999
-
+MINIMUM_AGE = 18
 SUPPRESS_UNDER = 6
 SUPPRESS_STRING = "1-{}".format(SUPPRESS_UNDER - 1)
 
@@ -100,6 +100,8 @@ class RowAnonymiser:
         result = self.row["test_result"]
         sex = self.row["sex"]
         age = self.row["age"]
+        if age < MINIMUM_AGE:
+            raise StopProcessing()
         direction = self.row["direction"]
         if test_code in NO_REF_RANGES:
             self.row["result_category"] = ERR_NO_REF_RANGE
