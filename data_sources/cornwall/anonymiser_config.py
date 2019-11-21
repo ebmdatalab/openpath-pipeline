@@ -3,6 +3,7 @@ import glob
 import zipfile
 import tempfile
 import csv
+import codecs
 from datetime import datetime
 import re
 
@@ -13,19 +14,14 @@ REFERENCE_RANGES = "cornwall_ref_ranges.csv"
 INPUT_FILES = glob.glob("/home/seb/Code/openpath-pipeline/data/Cornwall/*.zip")
 
 
-
 def row_iterator(filename):
     """Provide a way to iterate over every row as a dict in the given file
     """
-    # The default na_values will convert sodium (NA) into NaN!
     zf = zipfile.ZipFile(filename)
     fname = zf.namelist()[0]
-    with tempfile.TemporaryDirectory() as d:
-        # XXX don't have to extract to disk, we can stream in memory
-        zf.extract(fname, path=d)
-        with open(os.path.join(d, fname), "r", newline="", encoding="ISO-8859-1") as f:
-            for row in csv.DictReader(f):
-                yield row
+    with zf.open(fname, "r") as zipf:
+        for row in csv.DictReader(codecs.iterdecode(zipf, "ISO-8859-1")):
+            yield row
 
 
 def drop_unwanted_data(row_anonymiser):
