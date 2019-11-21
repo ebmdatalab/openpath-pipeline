@@ -56,8 +56,9 @@ def main():
         description="Generate suitably anonymised subset of raw input data"
     )
     labs = list_labs()
-    parser.add_argument("lab", help="lab", choices=labs.keys())
-    parser.add_argument("files", nargs="+", help="Monthly input files")
+    choices = list(labs.keys()) + ["all"]
+    parser.add_argument("lab", help="lab", choices=choices)
+    parser.add_argument("--single-file", help="Process single input file")
     parser.add_argument(
         "-v",
         "--verbose",
@@ -71,17 +72,27 @@ def main():
     args = parser.parse_args()
     multiprocessing = not args.no_multiprocessing
     log_level = 50 - (args.verbose * 10)
-    config = labs[args.lab]
-    process_files(
-        config.LAB_CODE,
-        os.path.join(os.path.dirname(config.__file__), config.REFERENCE_RANGES),
-        log_level,
-        args.files,
-        config.row_iterator,
-        config.drop_unwanted_data,
-        config.normalise_data,
-        multiprocessing,
-    )
+    if args.lab == "all":
+        labs_to_process = list(labs.keys())
+    else:
+        labs_to_process = [args.lab]
+    for lab in labs_to_process:
+        config = labs[lab]
+        print("Processing {lab}".format(lab=lab))
+        if args.single_file:
+            files = [args.single_file]
+        else:
+            files = config.INPUT_FILES
+        process_files(
+            config.LAB_CODE,
+            os.path.join(os.path.dirname(config.__file__), config.REFERENCE_RANGES),
+            log_level,
+            files,
+            config.row_iterator,
+            config.drop_unwanted_data,
+            config.normalise_data,
+            multiprocessing,
+        )
 
 
 if __name__ == "__main__":

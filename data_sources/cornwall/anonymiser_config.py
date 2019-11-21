@@ -1,4 +1,5 @@
 import os
+import glob
 import zipfile
 import tempfile
 import csv
@@ -9,6 +10,8 @@ from lib.anonymise import StopProcessing
 
 LAB_CODE = "cornwall"
 REFERENCE_RANGES = "cornwall_ref_ranges.csv"
+INPUT_FILES = glob.glob("/home/seb/Code/openpath-pipeline/data/Cornwall/*.zip")
+
 
 
 def row_iterator(filename):

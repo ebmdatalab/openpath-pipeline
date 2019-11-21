@@ -1,3 +1,4 @@
+import glob
 import os
 from openpyxl import load_workbook
 from datetime import datetime
@@ -7,6 +8,7 @@ from lib.anonymise import StopProcessing
 
 LAB_CODE = "nd"
 REFERENCE_RANGES = "north_devon_reference_ranges.csv"
+INPUT_FILES = glob.glob("/home/seb/Code/openpath-pipeline/data/NorthDevon/*/*")
 
 
 def row_iterator(filename):
