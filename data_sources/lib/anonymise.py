@@ -2,16 +2,20 @@
 
 Currently only works for XLS formatted inputs without column headers
 """
-import argparse
+from datetime import datetime
 import csv
 import json
+import os
 from multiprocessing import Pool
 import logging
 import pandas as pd
 from functools import partial
 import glob
 from functools import lru_cache
-
+from sqlalchemy import create_engine
+from sqlalchemy import Table, Column, String, DateTime, MetaData, Index
+from sqlalchemy.sql import and_
+from sqlalchemy.sql import select
 
 RANGE_CEILING = 99999
 
@@ -251,39 +255,129 @@ class Anonymiser:
                 self.rows.append(row_anonymiser.row)
 
     def to_csv(self):
-
         df = pd.DataFrame(self.rows)
         cols = ["month", "test_code", "practice_id", "result_category", "count"]
         df["count"] = 1
+
+        # Suppress low numbers
         aggregated = (
             df.groupby(["month", "test_code", "practice_id", "result_category"])
             .count()
             .dropna()
         ).reset_index()
         aggregated.loc[aggregated["count"] < SUPPRESS_UNDER, "count"] = SUPPRESS_STRING
-        # Write the file
-        date_collected = self.rows[0]["month"].replace("/", "_")
-        aggregated[cols].to_csv(
-            "converted_{}_{}.csv".format(self.lab, date_collected), index=False
+
+        # Make a filename which reasonably represents the contents of
+        # the file and doesn't already exist
+        date_collected = (
+            aggregated.groupby("month").count()["test_code"].sort_values().index[-1]
         )
+        converted_filename = "converted_{}_{}".format(self.lab, date_collected)
+        dupes = 0
+        while os.path.exists(f"{converted_filename}.csv"):
+            dupes += 1
+        if dupes:
+            converted_filename = f"{converted_filename}_{dupes}"
+        converted_filename = f"{converted_filename}.csv"
+        aggregated[cols].to_csv(converted_filename, index=False)
+        return converted_filename
 
 
-def combine_csvs(lab):
+def append_csvs(lab):
     outfile_path = "combined_{}.csv".format(lab)
-    with open(outfile_path, "w") as outfile:
+    if not os.path.exists(outfile_path):
+        add_header = True
+    else:
+        add_header = False
+    count = 0
+    with open(outfile_path, "a") as outfile:
         added_header = False
-        for name in glob.glob("converted_{}_*csv".format(lab)):
-            with open(name) as infile:
+        for converted_filename in get_unmerged_filenames(lab):
+            with open(converted_filename) as infile:
                 for i, line in enumerate(infile):
                     if i == 0:
-                        if not added_header:
+                        if add_header and not added_header:
                             outfile.write(line)
                             added_header = True
                         else:
                             continue
                     else:
                         outfile.write(line)
-    print("Combined data at {}".format(outfile_path))
+            mark_as_merged(lab, converted_filename)
+            os.remove(converted_filename)
+            count += 1
+    if count:
+        print("Combined {} data files at {}".format(count, outfile_path))
+    else:
+        print("No files to combine, nothing done")
+
+
+def get_engine():
+    return create_engine("sqlite:///processed.db")
+
+
+def get_processed_table(engine):
+    metadata = MetaData()
+    processed = Table(
+        "processed",
+        metadata,
+        Column("lab", String),
+        Column("filename", String),
+        Column("converted_filename", String),
+        Column("converted_at", DateTime),
+        Column("merged_at", DateTime),
+        Index("idx_lab_filename", "lab", "filename", unique=True),
+    )
+    metadata.create_all(engine)
+    return processed
+
+
+def mark_as_processed(lab, filename, converted_filename):
+    engine = get_engine()
+    conn = engine.connect()
+    ins = get_processed_table(engine).insert()
+    conn.execute(
+        ins,
+        lab=lab,
+        filename=filename,
+        converted_filename=converted_filename,
+        converted_at=datetime.now(),
+    )
+
+
+def mark_as_merged(lab, converted_filename):
+    engine = get_engine()
+    conn = engine.connect()
+    table = get_processed_table(engine)
+    conn.execute(
+        table.update()
+        .where(
+            and_(table.c.lab == lab, table.c.converted_filename == converted_filename)
+        )
+        .values(merged_at=datetime.now())
+    )
+
+
+def get_processed_filenames(lab):
+    engine = get_engine()
+    conn = engine.connect()
+    table = get_processed_table(engine)
+    s = select([table.c.filename]).where(table.c.lab == lab)
+    result = conn.execute(s).fetchall()
+    return [x[0] for x in result]
+
+
+def get_unmerged_filenames(lab):
+    engine = get_engine()
+    conn = engine.connect()
+    table = get_processed_table(engine)
+    s = (
+        select([table.c.converted_filename])
+        .where(table.c.lab == lab)
+        .where(table.c.merged_at == None)
+    )
+    result = conn.execute(s).fetchall()
+    return [x[0] for x in result]
 
 
 def process_file(
@@ -304,7 +398,8 @@ def process_file(
         log_level=log_level,
     )
     anonymiser.feed_file(filename)
-    anonymiser.to_csv()
+    converted_filename = anonymiser.to_csv()
+    mark_as_processed(lab, filename, converted_filename)
 
 
 def process_files(
@@ -318,6 +413,8 @@ def process_files(
     multiprocessing=False,
 ):
     filenames = sorted(filenames)
+    seen_filenames = get_processed_filenames(lab)
+    filenames = set(filenames) - set(seen_filenames)
     process_file_partial = partial(
         process_file,
         lab,
@@ -333,4 +430,4 @@ def process_files(
     else:
         for f in filenames:
             process_file_partial(f)
-    combine_csvs(lab)
+    append_csvs(lab)
