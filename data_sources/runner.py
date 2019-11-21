@@ -17,7 +17,9 @@ def list_labs():
     for folder in os.listdir("."):
         if os.path.isdir(folder):
             try:
-                config = importlib.import_module(f"{folder}.anonymiser_config")
+                config = importlib.import_module(
+                    "{folder}.anonymiser_config".format(folder=folder)
+                )
                 if config:
                     error = False
                     for required in [
@@ -30,17 +32,20 @@ def list_labs():
                         if not hasattr(config, required):
                             error = True
                             print(
-                                f"Error: {folder}.anonymiser_config lacks required attribute {required}"
+                                "Error: {folder}.anonymiser_config lacks required attribute {required}".format(
+                                    folder=folder, required=required
+                                )
                             )
                     if error:
                         sys.exit(1)
                     if config.LAB_CODE in configs:
                         print(
-                            f"Error: more than one definition for LAB_CODE {config.LAB_CODE}"
+                            "Error: more than one definition for LAB_CODE {lab_code}".format(
+                                lab_code=config.LAB_CODE
+                            )
                         )
                     configs[config.LAB_CODE] = config
             except ModuleNotFoundError as e:
-                print(e.name)
                 if not e.name.endswith("anonymiser_config"):
                     raise
     return configs
