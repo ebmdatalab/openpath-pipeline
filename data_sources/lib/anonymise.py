@@ -272,12 +272,17 @@ class Anonymiser:
         date_collected = (
             aggregated.groupby("month").count()["test_code"].sort_values().index[-1]
         )
-        converted_filename = "converted_{}_{}".format(self.lab, date_collected)
+        converted_filename = "converted_{}_{}".format(
+            self.lab, date_collected.replace("/", "_")
+        )
         dupes = 0
-        while os.path.exists(f"{converted_filename}.csv"):
+        if os.path.exists(f"{converted_filename}.csv"):
             dupes += 1
-        if dupes:
-            converted_filename = f"{converted_filename}_{dupes}"
+            candidate_filename = f"{converted_filename}_{dupes}"
+            while os.path.exists(f"{candidate_filename}.csv"):
+                dupes += 1
+                candidate_filename = f"{converted_filename}_{dupes}"
+            converted_filename = candidate_filename
         converted_filename = f"{converted_filename}.csv"
         aggregated[cols].to_csv(converted_filename, index=False)
         return converted_filename
@@ -309,7 +314,7 @@ def append_csvs(lab):
     if count:
         print("Combined {} data files at {}".format(count, outfile_path))
     else:
-        print("No files to combine, nothing done")
+        print("Nothing done")
 
 
 def get_engine():
