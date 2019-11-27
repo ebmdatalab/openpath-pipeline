@@ -83,6 +83,10 @@ def main():
             files = [args.single_file]
         else:
             files = config.INPUT_FILES
+        if hasattr(config, "convert_to_result"):
+            convert_to_result = config.convert_to_result
+        else:
+            convert_to_result = None
         process_files(
             config.LAB_CODE,
             os.path.join(os.path.dirname(config.__file__), config.REFERENCE_RANGES),
@@ -91,6 +95,7 @@ def main():
             config.row_iterator,
             config.drop_unwanted_data,
             config.normalise_data,
+            convert_to_result,
             multiprocessing,
         )
 

@@ -69,13 +69,22 @@ def configLogger():
 
 
 class RowAnonymiser:
-    def __init__(self, lab, ranges, drop_unwanted_data, normalise_data, log_level=None):
+    def __init__(
+        self,
+        lab,
+        ranges,
+        drop_unwanted_data,
+        normalise_data,
+        convert_to_result,
+        log_level=None,
+    ):
         self.orig_row = None
         self.row = None
         self.ranges = ranges
 
         self.drop_unwanted_data = drop_unwanted_data
         self.normalise_data = normalise_data
+        self.custom_convert_to_result = convert_to_result
         # self.reference_ranges_path = reference_ranges_path
 
         streamhandler = logging.StreamHandler()
@@ -206,7 +215,10 @@ class RowAnonymiser:
         try:
             self.drop_unwanted_data(self)
             self.normalise_data(self)
-            self.convert_to_result()
+            if self.custom_convert_to_result:
+                self.custom_convert_to_result(self)
+            else:
+                self.convert_to_result()
         except StopProcessing:
             self.row = None
 
@@ -224,6 +236,7 @@ class Anonymiser:
         row_iterator=None,
         drop_unwanted_data=None,
         normalise_data=None,
+        convert_to_result=None,
         log_level=logging.INFO,
     ):
         self.rows = []
@@ -231,9 +244,13 @@ class Anonymiser:
         self.row_iterator = row_iterator
         self.drop_unwanted_data = drop_unwanted_data
         self.normalise_data = normalise_data
+        self.convert_to_result = convert_to_result
         self.normalise_data_checked = False
         self.log_level = log_level
-        self.ref_ranges = get_ref_ranges(reference_ranges)
+        if os.path.isfile(reference_ranges):
+            self.ref_ranges = get_ref_ranges(reference_ranges)
+        else:
+            self.ref_ranges = []
 
     def feed_file(self, filename):
         row_anonymiser = RowAnonymiser(
@@ -241,14 +258,18 @@ class Anonymiser:
             self.ref_ranges,
             self.drop_unwanted_data,
             self.normalise_data,
+            self.convert_to_result,
             self.log_level,
         )
         for raw_row in self.row_iterator(filename):
             row_anonymiser.feed(raw_row)
             if row_anonymiser.row:
                 if not self.normalise_data_checked:
-                    assert set(row_anonymiser.row.keys()) == set(
-                        REQUIRED_NORMALISED_KEYS
+                    provided_keys = set(row_anonymiser.row.keys())
+                    required_keys = set(REQUIRED_NORMALISED_KEYS)
+                    missing_keys = required_keys - provided_keys
+                    assert not missing_keys, "Required keys missing: {}".format(
+                        missing_keys
                     )
                     self.normalise_data_checked = True
 
@@ -392,6 +413,7 @@ def process_file(
     row_iterator,
     drop_unwanted_data,
     normalise_data,
+    convert_to_result,
     filename,
 ):
     anonymiser = Anonymiser(
@@ -400,6 +422,7 @@ def process_file(
         row_iterator=row_iterator,
         drop_unwanted_data=drop_unwanted_data,
         normalise_data=normalise_data,
+        convert_to_result=convert_to_result,
         log_level=log_level,
     )
     anonymiser.feed_file(filename)
@@ -415,6 +438,7 @@ def process_files(
     row_iterator,
     drop_unwanted_data,
     normalise_data,
+    convert_to_result,
     multiprocessing=False,
 ):
     filenames = sorted(filenames)
@@ -428,6 +452,7 @@ def process_files(
         row_iterator,
         drop_unwanted_data,
         normalise_data,
+        convert_to_result,
     )
     if multiprocessing:
         with Pool() as pool:
