@@ -29,7 +29,9 @@ def drop_unwanted_data(row_anonymiser):
         unusable data (e.g. no information about the patient's age or the
         practice)
         """
-    pass
+    if not row_anonymiser.row["specimen_taken_date"]:
+        row_anonymiser.log_warning("Empty date")
+        raise StopProcessing()
 
 
 def normalise_data(row_anonymiser):
@@ -42,9 +44,14 @@ def normalise_data(row_anonymiser):
     """
     row = row_anonymiser.row
     result = row_anonymiser.row["analyte_result_measurement"]
-    order_date = datetime.strptime(
-        row_anonymiser.row["specimen_taken_date"], "%Y-%m-%d"
-    )
+    try:
+        order_date = datetime.strptime(
+            row_anonymiser.row["specimen_taken_date"], "%Y-%m-%d"
+        )
+    except ValueError:
+        row_anonymiser.log_warning("Unparseable date %s", result)
+        raise StopProcessing()
+
     row["month"] = order_date.strftime("%Y/%m/01")
     direction = None
     row["dob"] = ""
@@ -106,9 +113,12 @@ def convert_to_result(self):
         self.row["result_category"] = ERR_NO_REF_RANGE
         return
     return_code = None
-    low, high = [float(x) for x in ref_range.split("{")]
-
-    if low and high:
+    try:
+        low, high = [float(x) for x in ref_range.split("{")]
+    except ValueError:
+        self.row["result_category"] = ERR_INVALID_REF_RANGE
+        return
+    if high:
         if result > high:
             if direction == "<":
                 self.log_warning("Over range %s but result <; invalid", high)
