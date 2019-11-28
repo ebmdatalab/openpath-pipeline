@@ -10,7 +10,6 @@ from multiprocessing import Pool
 import logging
 import pandas as pd
 from functools import partial
-import glob
 from functools import lru_cache
 from sqlalchemy import create_engine
 from sqlalchemy import Table, Column, String, DateTime, MetaData, Index
@@ -41,9 +40,6 @@ REQUIRED_NORMALISED_KEYS = [
     "test_code",
     "test_result",
     "practice_id",
-    "age",
-    "sex",
-    "direction",
     "result_category",
 ]
 
@@ -272,11 +268,15 @@ class Anonymiser:
                         missing_keys
                     )
                     self.normalise_data_checked = True
-
-                self.rows.append(row_anonymiser.row)
+                # Only output the columns we care about
+                subset = [row_anonymiser.row[k] for k in REQUIRED_NORMALISED_KEYS]
+                self.rows.append(subset)
 
     def to_csv(self):
-        df = pd.DataFrame(self.rows)
+        # XXX chunk this by month
+        # XXX this assumes data for one month doesn't appear in two files!
+        # Should this all be done in sqlite? I think so.
+        df = pd.DataFrame(columns=REQUIRED_NORMALISED_KEYS, data=self.rows)
         cols = ["month", "test_code", "practice_id", "result_category", "count"]
         df["count"] = 1
 
