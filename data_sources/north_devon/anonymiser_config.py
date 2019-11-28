@@ -112,22 +112,21 @@ def normalise_data(row_anonymiser):
             result = float(result[1:]) + 0.0000001
         else:
             result = float(result)
-        row["test_result"] = result
-        row["direction"] = direction
-
-        col_mapping = {
-            "month": "month",
-            "test_code": "test_code",
-            "test_result": "test_result",
-            "practice_id": "source",
-            "age": "age",
-            "sex": "sex",
-            "direction": "direction",
-        }
-        mapped = {}
-        for k, v in col_mapping.items():
-            mapped[k] = row[v]
-        row_anonymiser.row = mapped
     except ValueError:
-        row_anonymiser.log_info("Unparseable result %s", result)
-        raise StopProcessing()
+        pass
+    row["test_result"] = result
+    row["direction"] = direction
+
+    col_mapping = {
+        "month": "month",
+        "test_code": "test_code",
+        "test_result": "test_result",
+        "practice_id": "source",
+        "age": "age",
+        "sex": "sex",
+        "direction": "direction",
+    }
+    mapped = {}
+    for k, v in col_mapping.items():
+        mapped[k] = row[v]
+    row_anonymiser.row = mapped

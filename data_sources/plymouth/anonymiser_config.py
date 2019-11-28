@@ -9,9 +9,22 @@ from lib.anonymise import StopProcessing
 LAB_CODE = "plymouth"
 REFERENCE_RANGES = ""
 # XXX change this
-# INPUT_FILES = glob.glob("/home/seb/Code/openpath-pipeline/data/plymouth/*.zip")
-INPUT_FILES = ["plymouth/2015_sample.zip"]
+INPUT_FILES = glob.glob("/home/seb/Code/openpath-pipeline/data/Plymouth/*.zip")
+# INPUT_FILES = ["plymouth/2015_sample.zip"]
 RANGE_CEILING = 99999
+
+
+# Error codes
+WITHIN_RANGE = 0
+UNDER_RANGE = -1
+OVER_RANGE = 1
+ERR_NO_REF_RANGE = 2
+ERR_UNPARSEABLE_RESULT = 3
+ERR_INVALID_SEX = 4
+ERR_INVALID_RANGE_WITH_DIRECTION = 5
+ERR_DISCARDED_AGE = 6
+ERR_INVALID_REF_RANGE = 7
+ERR_NO_TEST_CODE = 8
 
 
 def row_iterator(filename):
@@ -66,39 +79,25 @@ def normalise_data(row_anonymiser):
             result = float(result[1:]) + 0.0000001
         else:
             result = float(result)
-        row["test_result"] = result
-        row["direction"] = direction
-
-        col_mapping = {
-            "month": "month",
-            "test_code": "analyte_lab_code",
-            "test_result": "test_result",
-            "practice_id": "requestor_organisation_code",
-            "age": "age",
-            "sex": "sex",
-            "direction": "direction",
-            "Reference Range": "Reference Range",
-        }
-        mapped = {}
-        for k, v in col_mapping.items():
-            mapped[k] = row[v]
-        row_anonymiser.row = mapped
     except ValueError:
-        row_anonymiser.log_info("Unparseable result %s", result)
-        raise StopProcessing()
+        pass
+    row["test_result"] = result
+    row["direction"] = direction
 
-
-# Error codes
-WITHIN_RANGE = 0
-UNDER_RANGE = -1
-OVER_RANGE = 1
-ERR_NO_REF_RANGE = 2
-ERR_UNPARSEABLE_RESULT = 3
-ERR_INVALID_SEX = 4
-ERR_INVALID_RANGE_WITH_DIRECTION = 5
-ERR_DISCARDED_AGE = 6
-ERR_INVALID_REF_RANGE = 7
-ERR_NO_TEST_CODE = 8
+    col_mapping = {
+        "month": "month",
+        "test_code": "analyte_lab_code",
+        "test_result": "test_result",
+        "practice_id": "requestor_organisation_code",
+        "age": "age",
+        "sex": "sex",
+        "direction": "direction",
+        "Reference Range": "Reference Range",
+    }
+    mapped = {}
+    for k, v in col_mapping.items():
+        mapped[k] = row[v]
+    row_anonymiser.row = mapped
 
 
 def convert_to_result(self):
@@ -117,6 +116,10 @@ def convert_to_result(self):
         low, high = [float(x) for x in ref_range.split("{")]
     except ValueError:
         self.row["result_category"] = ERR_INVALID_REF_RANGE
+        return
+    if not isinstance(result, float):
+        self.log_info("Unparseable result")
+        self.row["result_category"] = ERR_UNPARSEABLE_RESULT
         return
     if high:
         if result > high:
