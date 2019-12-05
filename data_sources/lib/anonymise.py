@@ -311,29 +311,37 @@ class Anonymiser:
 
 def append_csvs(lab):
     outfile_path = "combined_{}.csv".format(lab)
-    if not os.path.exists(outfile_path):
-        add_header = True
-    else:
-        add_header = False
+    outfile_path_tmp = "combined_{}.csv.tmp".format(lab)
     count = 0
-    with open(outfile_path, "a") as outfile:
-        added_header = False
-        for converted_filename in get_unmerged_filenames(lab):
-            with open(converted_filename) as infile:
-                for i, line in enumerate(infile):
-                    if i == 0:
-                        if add_header and not added_header:
-                            outfile.write(line)
-                            added_header = True
-                        else:
-                            continue
-                    else:
-                        outfile.write(line)
-            mark_as_merged(lab, converted_filename)
-            os.remove(converted_filename)
-            count += 1
+    unmerged = pd.DataFrame(columns=REQUIRED_NORMALISED_KEYS)
+    unmerged_filenames = get_unmerged_filenames(lab)
+    examined = []
+    for converted_filename in unmerged_filenames:
+        unmerged = pd.concat(
+            [unmerged, pd.read_csv(converted_filename, na_filter=False)]
+        )
+        examined.append(converted_filename)
+        # Check each file on a running basis for dupes
+        assert (
+            len(unmerged[unmerged.duplicated()]) == 0
+        ), "Error! Duplicates in {}".format(examined)
+
+    try:
+        existing = pd.read_csv(outfile_path, na_filter=False)
+        merged = pd.concat([existing, unmerged])
+    except FileNotFoundError:
+        merged = unmerged
+    assert len(merged[merged.duplicated()]) == 0, "Error! Duplicates in {}".format(
+        converted_filename
+    )
+    for filename in unmerged_filenames:
+        mark_as_merged(lab, filename)
+        os.remove(filename)
+        count += 1
+
     if count:
-        print("Combined {} data files at {}".format(count, outfile_path))
+        merged.to_csv(outfile_path_tmp)
+        os.rename(outfile_path_tmp, outfile_path)
     else:
         print("Nothing done")
 
