@@ -414,6 +414,13 @@ def get_unmerged_filenames(lab):
     return [x[0] for x in result]
 
 
+def reset_lab(lab):
+    engine = get_engine()
+    conn = engine.connect()
+    table = get_processed_table(engine)
+    conn.execute(table.delete().where(table.c.lab == lab))
+
+
 def process_file(
     lab,
     reference_ranges,
@@ -448,7 +455,15 @@ def process_files(
     normalise_data,
     convert_to_result,
     multiprocessing=False,
+    reimport=False,
 ):
+    if reimport:
+        really_reset = input("Really reset all data? (y/n)")
+        if really_reset == "y":
+            reset_lab(lab)
+            os.remove("combined_{}.csv".format(lab))
+        else:
+            return
     filenames = sorted(filenames)
     seen_filenames = get_processed_filenames(lab)
     filenames = set(filenames) - set(seen_filenames)

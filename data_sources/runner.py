@@ -69,6 +69,11 @@ def main():
     parser.add_argument(
         "--no-multiprocessing", help="Use multiprocessing", action="store_true"
     )
+    parser.add_argument(
+        "--reimport",
+        help="Delete existing files and import everything from scratch",
+        action="store_true",
+    )
     args = parser.parse_args()
     multiprocessing = not args.no_multiprocessing
     log_level = 50 - (args.verbose * 10)
@@ -97,6 +102,7 @@ def main():
             config.normalise_data,
             convert_to_result,
             multiprocessing,
+            args.reimport,
         )
 
 
