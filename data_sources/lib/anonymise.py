@@ -2,13 +2,16 @@
 
 Currently only works for XLS formatted inputs without column headers
 """
-from datetime import datetime
+import datetime
 import csv
 import json
 import os
+from dateutils import relativedelta
+from datetime import date
 from multiprocessing import Pool
 import logging
 import pandas as pd
+from pandas.api.types import CategoricalDtype
 from functools import partial
 from functools import lru_cache
 from sqlalchemy import create_engine
@@ -35,13 +38,7 @@ ERR_INVALID_REF_RANGE = 7
 ERR_NO_TEST_CODE = 8
 
 
-REQUIRED_NORMALISED_KEYS = [
-    "month",
-    "test_code",
-    "test_result",
-    "practice_id",
-    "result_category",
-]
+REQUIRED_NORMALISED_KEYS = ["month", "test_code", "practice_id", "result_category"]
 
 
 class StopProcessing(Exception):
@@ -273,81 +270,118 @@ class Anonymiser:
                 self.rows.append(subset)
 
     def to_csv(self):
-        # XXX chunk this by month
-        # XXX this assumes data for one month doesn't appear in two files!
-        # Should this all be done in sqlite? I think so.
         df = pd.DataFrame(columns=REQUIRED_NORMALISED_KEYS, data=self.rows)
-        cols = ["month", "test_code", "practice_id", "result_category", "count"]
+        cols = ["month", "test_code", "practice_id", "result_category"]
         df["count"] = 1
-
-        # Suppress low numbers
-        aggregated = (
-            df.groupby(["month", "test_code", "practice_id", "result_category"])
-            .count()
-            .dropna()
-        ).reset_index()
-        aggregated.loc[aggregated["count"] < SUPPRESS_UNDER, "count"] = SUPPRESS_STRING
 
         # Make a filename which reasonably represents the contents of
         # the file and doesn't already exist
         date_collected = (
-            aggregated.groupby("month").count()["test_code"].sort_values().index[-1]
+            df.groupby("month").count()["test_code"].sort_values().index[-1]
         )
-        converted_filename = "converted_{}_{}".format(
-            self.lab, date_collected.replace("/", "_")
+        converted_filename = "{}converted_{}_{}".format(
+            os.environ["OPATH_ENV"], self.lab, date_collected.replace("/", "_")
         )
         dupes = 0
-        if os.path.exists(f"{converted_filename}.csv"):
+        if os.path.exists(f"{os.environ['OPATH_ENV']}{converted_filename}.csv"):
             dupes += 1
-            candidate_filename = f"{converted_filename}_{dupes}"
+            candidate_filename = (
+                f"{os.environ['OPATH_ENV']}{converted_filename}_{dupes}"
+            )
             while os.path.exists(f"{candidate_filename}.csv"):
                 dupes += 1
                 candidate_filename = f"{converted_filename}_{dupes}"
             converted_filename = candidate_filename
-        converted_filename = f"{converted_filename}.csv"
-        aggregated[cols].to_csv(converted_filename, index=False)
+        converted_filename = f"{os.environ['OPATH_ENV']}{converted_filename}.csv"
+        df[cols].to_csv(converted_filename, index=False)
         return converted_filename
 
 
 def append_csvs(lab):
-    outfile_path = "combined_{}.csv".format(lab)
-    outfile_path_tmp = "combined_{}.csv.tmp".format(lab)
-    count = 0
+    outfile_path = "{}combined_{}.csv".format(os.environ["OPATH_ENV"], lab)
     unmerged = pd.DataFrame(columns=REQUIRED_NORMALISED_KEYS)
     unmerged_filenames = get_unmerged_filenames(lab)
-    examined = []
-    for converted_filename in unmerged_filenames:
-        unmerged = pd.concat(
-            [unmerged, pd.read_csv(converted_filename, na_filter=False)]
-        )
-        examined.append(converted_filename)
-        # Check each file on a running basis for dupes
-        assert (
-            len(unmerged[unmerged.duplicated()]) == 0
-        ), "Error! Duplicates in {}".format(examined)
+    if not unmerged_filenames:
+        print("Nothing to do")
+        return
 
+    # First, build a single dataframe of all the constituent monthly
+    # CSVs. We use categorical types where possible to save memory on
+    # the expensive grouping operation that comes next
+
+    # Build categorical values for months
+    month = datetime.date(2014, 1, 1)
+    month_categories = []
+    while month <= date.today():
+        month_categories.append(month.strftime("%Y/%m/%d"))
+        month += relativedelta(months=1)
+    date_dtype = CategoricalDtype(categories=month_categories, ordered=False)
+
+    result_dtype = CategoricalDtype(
+        categories=[
+            WITHIN_RANGE,
+            UNDER_RANGE,
+            OVER_RANGE,
+            ERR_NO_REF_RANGE,
+            ERR_UNPARSEABLE_RESULT,
+            ERR_INVALID_SEX,
+            ERR_INVALID_RANGE_WITH_DIRECTION,
+            ERR_DISCARDED_AGE,
+            ERR_INVALID_REF_RANGE,
+            ERR_NO_TEST_CODE,
+        ],
+        ordered=False,
+    )
+    for source_filename, converted_filename in unmerged_filenames:
+        unmerged = pd.concat(
+            [
+                unmerged,
+                pd.read_csv(
+                    converted_filename,
+                    na_filter=False,
+                    dtype={
+                        "month": date_dtype,
+                        "test_code": str,
+                        "practice_id": str,
+                        "result_category": result_dtype,
+                    },
+                ),
+            ]
+        )
     try:
         existing = pd.read_csv(outfile_path, na_filter=False)
-        merged = pd.concat([existing, unmerged])
+        merged = pd.concat([existing, unmerged], sort=False)
     except FileNotFoundError:
         merged = unmerged
-    assert len(merged[merged.duplicated()]) == 0, "Error! Duplicates in {}".format(
-        converted_filename
+    # We have to convert these columns to categories *after* all the
+    # constituent files have been loaded, as only then are all the
+    # categorical values known
+    merged["test_code"] = merged["test_code"].astype(CategoricalDtype(ordered=False))
+    merged["practice_id"] = merged["practice_id"].astype(
+        CategoricalDtype(ordered=False)
     )
-    for filename in unmerged_filenames:
+
+    # Aggregate data to produce counts, and suppress low numbers
+    aggregated = (
+        merged.groupby(
+            ["month", "test_code", "practice_id", "result_category"], observed=True
+        )
+        .count()
+        .dropna()
+    ).reset_index()
+    aggregated.loc[aggregated["count"] < SUPPRESS_UNDER, "count"] = SUPPRESS_STRING
+    aggregated[
+        ["month", "test_code", "practice_id", "result_category", "count"]
+    ].to_csv(outfile_path, index=False)
+
+    # Clean up unmerged files
+    for _, filename in unmerged_filenames:
         mark_as_merged(lab, filename)
         os.remove(filename)
-        count += 1
-
-    if count:
-        merged.to_csv(outfile_path_tmp)
-        os.rename(outfile_path_tmp, outfile_path)
-    else:
-        print("Nothing done")
 
 
 def get_engine():
-    return create_engine("sqlite:///processed.db")
+    return create_engine("sqlite:///{}processed.db".format(os.environ["OPATH_ENV"]))
 
 
 def get_processed_table(engine):
@@ -375,7 +409,7 @@ def mark_as_processed(lab, filename, converted_filename):
         lab=lab,
         filename=filename,
         converted_filename=converted_filename,
-        converted_at=datetime.now(),
+        converted_at=datetime.datetime.now(),
     )
 
 
@@ -388,7 +422,7 @@ def mark_as_merged(lab, converted_filename):
         .where(
             and_(table.c.lab == lab, table.c.converted_filename == converted_filename)
         )
-        .values(merged_at=datetime.now())
+        .values(merged_at=datetime.datetime.now())
     )
 
 
@@ -406,12 +440,12 @@ def get_unmerged_filenames(lab):
     conn = engine.connect()
     table = get_processed_table(engine)
     s = (
-        select([table.c.converted_filename])
+        select([table.c.filename, table.c.converted_filename])
         .where(table.c.lab == lab)
         .where(table.c.merged_at == None)
     )
     result = conn.execute(s).fetchall()
-    return [x[0] for x in result]
+    return [(x[0], x[1]) for x in result]
 
 
 def reset_lab(lab):
@@ -461,7 +495,9 @@ def process_files(
         really_reset = input("Really reset all data? (y/n)")
         if really_reset == "y":
             reset_lab(lab)
-            os.remove("combined_{}.csv".format(lab))
+            target_filename = "combined_{}.csv".format(lab)
+            if os.path.exists(target_filename):
+                os.remove(target_filename)
         else:
             return
     filenames = sorted(filenames)

@@ -70,6 +70,9 @@ def main():
         "--no-multiprocessing", help="Use multiprocessing", action="store_true"
     )
     parser.add_argument(
+        "--test", help="Use test environment and file-naming", action="store_true"
+    )
+    parser.add_argument(
         "--reimport",
         help="Delete existing files and import everything from scratch",
         action="store_true",
@@ -77,6 +80,10 @@ def main():
     args = parser.parse_args()
     multiprocessing = not args.no_multiprocessing
     log_level = 50 - (args.verbose * 10)
+    if args.test:
+        os.environ["OPATH_ENV"] = "test_"
+    else:
+        os.environ["OPATH_ENV"] = ""
     if args.lab == "all":
         labs_to_process = list(labs.keys())
     else:
