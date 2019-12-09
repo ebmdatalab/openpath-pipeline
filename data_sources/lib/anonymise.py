@@ -373,6 +373,7 @@ def append_csvs(lab):
         .count()
         .dropna()
     ).reset_index()
+    aggregated["count"] = 0
     aggregated.loc[aggregated["count"] < SUPPRESS_UNDER, "count"] = SUPPRESS_STRING
     aggregated[
         ["month", "test_code", "practice_id", "result_category", "count"]
