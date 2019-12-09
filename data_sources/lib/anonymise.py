@@ -61,6 +61,10 @@ def configLogger():
     pass
 
 
+def get_env():
+    return os.environ.get("OPATH_ENV", "")
+
+
 class RowAnonymiser:
     def __init__(
         self,
@@ -280,7 +284,7 @@ class Anonymiser:
             df.groupby("month").count()["test_code"].sort_values().index[-1]
         )
         converted_filename = "{}converted_{}_{}".format(
-            os.environ["OPATH_ENV"], self.lab, date_collected.replace("/", "_")
+            get_env(), self.lab, date_collected.replace("/", "_")
         )
         dupes = 0
         if os.path.exists(f"{os.environ['OPATH_ENV']}{converted_filename}.csv"):
@@ -298,7 +302,7 @@ class Anonymiser:
 
 
 def append_csvs(lab):
-    outfile_path = "{}combined_{}.csv".format(os.environ["OPATH_ENV"], lab)
+    outfile_path = "{}combined_{}.csv".format(get_env(), lab)
     unmerged = pd.DataFrame(columns=REQUIRED_NORMALISED_KEYS)
     unmerged_filenames = get_unmerged_filenames(lab)
     if not unmerged_filenames:
@@ -381,7 +385,7 @@ def append_csvs(lab):
 
 
 def get_engine():
-    return create_engine("sqlite:///{}processed.db".format(os.environ["OPATH_ENV"]))
+    return create_engine("sqlite:///{}processed.db".format(get_env()))
 
 
 def get_processed_table(engine):
