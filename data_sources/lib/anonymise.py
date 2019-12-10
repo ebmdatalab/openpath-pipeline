@@ -62,7 +62,7 @@ def configLogger():
 
 
 def get_env():
-    return os.environ.get("OPATH_ENV", "")
+    return os.environ.get("OPATH_ENV", "") + "_"
 
 
 class RowAnonymiser:
@@ -283,20 +283,18 @@ class Anonymiser:
         date_collected = (
             df.groupby("month").count()["test_code"].sort_values().index[-1]
         )
-        converted_filename = "{}converted_{}_{}".format(
+        converted_basename = "{}converted_{}_{}".format(
             get_env(), self.lab, date_collected.replace("/", "_")
         )
         dupes = 0
-        if os.path.exists(f"{os.environ['OPATH_ENV']}{converted_filename}.csv"):
+        if os.path.exists("{}.csv".format(converted_basename)):
             dupes += 1
-            candidate_filename = (
-                f"{os.environ['OPATH_ENV']}{converted_filename}_{dupes}"
-            )
-            while os.path.exists(f"{candidate_filename}.csv"):
+            candidate_basename = "{}_{}".format(converted_basename, dupes)
+            while os.path.exists("{}.csv".format(candidate_basename)):
                 dupes += 1
-                candidate_filename = f"{converted_filename}_{dupes}"
+                candidate_filename = "{}_{}".format(converted_basename, dupes)
             converted_filename = candidate_filename
-        converted_filename = f"{os.environ['OPATH_ENV']}{converted_filename}.csv"
+        converted_filename = "{}.csv".format(converted_filename)
         df[cols].to_csv(converted_filename, index=False)
         return converted_filename
 
