@@ -1,4 +1,5 @@
 import glob
+import os
 import zipfile
 import csv
 import codecs
@@ -8,9 +9,13 @@ from lib.anonymise import StopProcessing
 
 LAB_CODE = "plymouth"
 REFERENCE_RANGES = ""
-# XXX change this
-INPUT_FILES = glob.glob("/home/seb/Code/openpath-pipeline/data/Plymouth/*.zip")
-# INPUT_FILES = ["plymouth/2015_sample.zip"]
+
+files_path = os.path.join(
+    os.environ.get("DATA_BASEDIR", "/home/filr/"), "Plymouth/*.zip"
+)
+INPUT_FILES = glob.glob(files_path)
+assert INPUT_FILES, "No input files found at {}".format(files_path)
+
 RANGE_CEILING = 99999
 
 

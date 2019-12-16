@@ -8,7 +8,11 @@ from lib.anonymise import StopProcessing
 
 LAB_CODE = "nd"
 REFERENCE_RANGES = "north_devon_reference_ranges.csv"
-INPUT_FILES = glob.glob("/home/seb/Code/openpath-pipeline/data/NorthDevon/*/*")
+files_path = os.path.join(
+    os.environ.get("DATA_BASEDIR", "/home/filr/"), "NorthDevon/*.zip"
+)
+INPUT_FILES = glob.glob(files_path)
+assert INPUT_FILES, "No input files found at {}".format(files_path)
 
 
 def row_iterator(filename):
