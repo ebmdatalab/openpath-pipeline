@@ -59,6 +59,8 @@ def normalise_data(row_anonymiser):
     try:
         dob = datetime.strptime(row["PatientDOB"], "%m-%Y")
         row["age"] = (order_date - dob).days / 365
+        if row["age"] < 18:
+            raise StopProcessing()
     except ValueError:
         # Couldn't parse age. Drop row.
         raise StopProcessing()

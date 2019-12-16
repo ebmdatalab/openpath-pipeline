@@ -45,6 +45,8 @@ def drop_unwanted_data(row_anonymiser):
     if not row_anonymiser.row["specimen_taken_date"]:
         row_anonymiser.log_warning("Empty date")
         raise StopProcessing()
+    if row_anonymiser.row["patient_age"] < "18":
+        raise StopProcessing()
 
 
 def normalise_data(row_anonymiser):

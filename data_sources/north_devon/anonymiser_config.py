@@ -100,6 +100,8 @@ def normalise_data(row_anonymiser):
     collected = _date_string_to_past_datetime(row["date_collected"])
 
     row["age"] = (collected - dob).days / 365
+    if row["age"] < 18:
+        raise StopProcessing()
     result = row["result"]
     row["month"] = collected.strftime("%Y/%m/01")
     direction = None
