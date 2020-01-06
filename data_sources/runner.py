@@ -15,7 +15,7 @@ except NameError:
 def list_labs():
     configs = {}
     for folder in os.listdir("."):
-        if os.path.isdir(folder):
+        if os.path.isdir(folder) and not folder.startswith("."):
             try:
                 config = importlib.import_module(
                     "{folder}.anonymiser_config".format(folder=folder)
