@@ -37,6 +37,7 @@ ERR_DISCARDED_AGE = 6
 ERR_INVALID_REF_RANGE = 7
 ERR_NO_TEST_CODE = 8
 
+DATE_FLOOR = (date.today() - relativedelta(years=5)).strftime("%Y/%m/%d")
 
 REQUIRED_NORMALISED_KEYS = ["month", "test_code", "practice_id", "result_category"]
 
@@ -208,10 +209,15 @@ class RowAnonymiser:
             return_code = ERR_NO_REF_RANGE
         self.row["result_category"] = return_code
 
+    def skip_old_data(self):
+        if self.row["month"] < DATE_FLOOR:
+            raise StopProcessing()
+
     def process_row(self):
         try:
             self.drop_unwanted_data(self)
             self.normalise_data(self)
+            self.skip_old_data(self)
             if self.custom_convert_to_result:
                 self.custom_convert_to_result(self)
             else:
