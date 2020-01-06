@@ -298,8 +298,8 @@ class Anonymiser:
             candidate_basename = "{}_{}".format(converted_basename, dupes)
             while os.path.exists("{}.csv".format(candidate_basename)):
                 dupes += 1
-                candidate_filename = "{}_{}".format(converted_basename, dupes)
-            converted_basename = candidate_filename
+                candidate_basename = "{}_{}".format(converted_basename, dupes)
+            converted_basename = candidate_basename
         converted_filename = "{}.csv".format(converted_basename)
         df[cols].to_csv(converted_filename, index=False)
         return converted_filename
