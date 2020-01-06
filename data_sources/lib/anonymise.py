@@ -5,6 +5,7 @@ Currently only works for XLS formatted inputs without column headers
 import datetime
 import csv
 import json
+import io
 import os
 from dateutils import relativedelta
 from datetime import date
@@ -305,27 +306,18 @@ class Anonymiser:
         return converted_filename
 
 
-def append_csvs(lab):
-    outfile_path = "{}combined_{}.csv".format(get_env(), lab)
-    unmerged = pd.DataFrame(columns=REQUIRED_NORMALISED_KEYS)
-    unmerged_filenames = get_unmerged_filenames(lab)
-    if not unmerged_filenames:
-        print("Nothing to do")
-        return
-
-    # First, build a single dataframe of all the constituent monthly
-    # CSVs. We use categorical types where possible to save memory on
-    # the expensive grouping operation that comes next
-
+def _date_dtype():
     # Build categorical values for months
     month = datetime.date(2014, 1, 1)
     month_categories = []
     while month <= date.today():
         month_categories.append(month.strftime("%Y/%m/%d"))
         month += relativedelta(months=1)
-    date_dtype = CategoricalDtype(categories=month_categories, ordered=False)
+    return CategoricalDtype(categories=month_categories, ordered=False)
 
-    result_dtype = CategoricalDtype(
+
+def _result_dtype():
+    return CategoricalDtype(
         categories=[
             WITHIN_RANGE,
             UNDER_RANGE,
@@ -340,53 +332,176 @@ def append_csvs(lab):
         ],
         ordered=False,
     )
+
+
+def combine_csvs(lab):
+    """For a given lab, combine any unmerged monthly files and append them
+    to an an existing `combined` file.  Also sanity checks data to
+    provide some assurance data hasn't been appended twice.
+
+    """
+    all_results_path = "{}combined_{}.csv".format(get_env(), lab)
+
+    # First, build a single dataframe of all the constituent monthly
+    # CSVs that have not previously been processed
+    processed_data_dtypes = {
+        "month": _date_dtype(),
+        "test_code": str,
+        "practice_id": str,
+        "result_category": _result_dtype(),
+    }
+    unmerged_filenames = get_unmerged_filenames(lab)
+    unmerged = pd.read_csv(
+        # Reading an empty CSV in this way allows us to define column
+        # types for an empty dataframe, which we can use for `concat`
+        # operations
+        io.StringIO(""),
+        names=REQUIRED_NORMALISED_KEYS,
+        dtype=processed_data_dtypes,
+    )
     for source_filename, converted_filename in unmerged_filenames:
         unmerged = pd.concat(
             [
                 unmerged,
                 pd.read_csv(
-                    converted_filename,
-                    na_filter=False,
-                    dtype={
-                        "month": date_dtype,
-                        "test_code": str,
-                        "practice_id": str,
-                        "result_category": result_dtype,
-                    },
+                    converted_filename, na_filter=False, dtype=processed_data_dtypes
                 ),
             ]
         )
+
+    # Now open the any existing "combined" file and append our new rows to that
     try:
-        existing = pd.read_csv(outfile_path, na_filter=False)
-        merged = pd.concat([existing, unmerged], sort=False)
+        existing = pd.read_csv(
+            all_results_path, dtype=processed_data_dtypes, na_filter=False
+        )
+        # Test we're not re-appending rows to the same file. In theory
+        # this shouldn't happen as we track imported filenames, but
+        # until that code is tested and known to be rebust: has the
+        # number of tests in the previously-most-recent month stayed
+        # within 20% of previous value?
+        final_month = sorted(existing["month"].unique())[-2]
+        final_count = existing[existing["month"] == final_month].count().iloc[0]
+        if unmerged_filenames:
+            merged = pd.concat([existing, unmerged], sort=False)
+        else:
+            merged = existing
+        new_final_count = merged[merged["month"] == final_month].count().iloc[0]
+        assert (new_final_count - final_count) < 0.2 * final_count, (
+            "Number of tests in month {} increased by more than 20%".format(final_month)
+            # Why 20%? Normally data is provided as one file per
+            # month, but at some month boundaries (e.g. Dec/Jan) it's
+            # not unusual to have a load of tests ordered in one month
+            # and reported on in the next
+        )
     except FileNotFoundError:
+        # The first time we've made a merged file
         merged = unmerged
-    # We have to convert these columns to categories *after* all the
-    # constituent files have been loaded, as only then are all the
-    # categorical values known
-    merged["test_code"] = merged["test_code"].astype(CategoricalDtype(ordered=False))
+    if unmerged_filenames:
+        merged.to_csv(all_results_path, index=False)
+    # Clean up unmerged files
+    for _, filename in unmerged_filenames:
+        mark_as_merged(lab, filename)
+        # xxx REINSTATE XXX os.remove(filename)
+    # Thes columns can't be categorical up-front as we don't know what
+    # practice ids or test codes are going to be present until thie end
     merged["practice_id"] = merged["practice_id"].astype(
         CategoricalDtype(ordered=False)
     )
+    merged["test_code"] = merged["test_code"].astype(CategoricalDtype(ordered=False))
+    return merged
 
-    # Aggregate data to produce counts, and suppress low numbers
+
+CODE_MAPPINGS = {
+    "nd": ["nd_testcode"],
+    "cornwall": ["cornwall_testcode"],
+    "plymouth": ["plym_testcode", "other_plym_codes"],
+}
+
+
+def _get_test_codes(lab):
+    """Make a CSV of all the normalised test codes and lab test codes that
+    have been marked in the Google Sheet for export.
+
+    """
+    url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeLPEW4rTy_hCktuAXEsXtivcdREDuU7jKfXlvJ7CTEBycrxWyunBWdLgGe7Pm1A/pub?gid=241568377&single=true&output=csv"
+    columns = CODE_MAPPINGS[lab] + ["datalab_testcode"]
+    df = pd.read_csv(
+        url, na_filter=False, usecols=columns + ["show_in_app?", "testname"]
+    )
+    df = df[df["show_in_app?"] == True]
+
+    # Drop any mappings that are actually the same as the datalab one
+    for colname in CODE_MAPPINGS[lab]:
+        df.loc[df[colname] == df["datalab_testcode"], colname] = "_DONTJOIN_"
+
+    dupe_codes = df.datalab_testcode[df.datalab_testcode.duplicated()]
+    dupe_names = df.testname[df.testname.duplicated()]
+    if not dupe_codes.empty or not dupe_names.empty:
+        raise ValueError(
+            f"Non-unique test codes or names\n"
+            f" codes: {', '.join(dupe_codes)}\n"
+            f" names: {', '.join(dupe_names)}"
+        )
+    return df[columns]
+
+
+def _normalise_test_codes(lab, df):
+    """Convert local test codes into a normalised version.
+
+    """
+    orig_cols = df.columns
+    # test_code_mapping contains columns referenced in CODE_MAPPINGS
+    # such that `datalab_testcode` is the canonical code, and each
+    # extra column is a possible alias. These aliases are imputed by
+    # hand and recorded in a Google Sheet; @helenCEBM is in the
+    # process of documenting this.
+
+    test_code_mapping = _get_test_codes(lab)
+    output = pd.DataFrame(columns=orig_cols)
+    # For each test code identified for the lab in our
+    # manually-curated mapping spreadsheet, rename any codes to our
+    # normalised `datalab_testcode`. In addition, be sure also to
+    # match on any codes in the lab data which are exactly the same as
+    # the `datalab_testcode`.
+    for colname in CODE_MAPPINGS[lab] + ["datalab_testcode"]:
+        result = df.merge(
+            test_code_mapping, how="inner", left_on="test_code", right_on=colname
+        )
+        result = result.rename(
+            columns={"test_code": "source_test_code", "datalab_testcode": "test_code"}
+        )
+        output = output.append(result[orig_cols])
+    return output
+
+
+def normalise_and_suppress(lab, merged):
+    """Given a lab id and a file containing all processed data, (a)
+    normalise test codes so they are consistent through time (e.g. the
+    code for HB in one lab might be HB1 in April and change to HB2 in
+    May); (b) do low-number suppression against the entire dataset
+
+    """
+    anonymised_results_path = "{}anonymised_{}.csv".format(get_env(), lab)
+    normalised = _normalise_test_codes(lab, merged)
+    # We have to convert these columns to categories *after* all the
+    # constituent files have been loaded, as only then are all the
+    # categorical values known
+    normalised["test_code"] = normalised["test_code"].astype(
+        CategoricalDtype(ordered=False)
+    )
+    # Aggregate data to produce counts, and suppress low numbers.
+    normalised.loc[:, "count"] = 0
     aggregated = (
-        merged.groupby(
+        normalised.groupby(
             ["month", "test_code", "practice_id", "result_category"], observed=True
         )
         .count()
         .dropna()
     ).reset_index()
-    aggregated["count"] = 0
     aggregated.loc[aggregated["count"] < SUPPRESS_UNDER, "count"] = SUPPRESS_STRING
     aggregated[
         ["month", "test_code", "practice_id", "result_category", "count"]
-    ].to_csv(outfile_path, index=False)
-
-    # Clean up unmerged files
-    for _, filename in unmerged_filenames:
-        mark_as_merged(lab, filename)
-        os.remove(filename)
+    ].to_csv(anonymised_results_path, index=False)
 
 
 def get_engine():
@@ -528,4 +643,5 @@ def process_files(
     else:
         for f in filenames:
             process_file_partial(f)
-    append_csvs(lab)
+    merged = combine_csvs(lab)
+    normalise_and_suppress(lab, merged)
