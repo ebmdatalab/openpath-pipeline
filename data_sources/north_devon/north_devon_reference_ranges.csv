@@ -28,11 +28,11 @@ ATP2,TPO,20.0,120.0,0.0,0.0,34.0,34.0
 B12,Vitamin B12,0.0,120.0,191.0,191.0,663.0,663.0
 BASO,Basophil,0.0,120.0,0.01,0.01,0.25,0.25
 C125,CA 125,16.0,120.0,0.0,0.0,35.0,35.0
-CA,Calcium,,,2.2,2.2,2.7,2.7
+CA,Calcium,0.0,16.0,2.2,2.2,2.7,2.7
 CA,Calcium,16.0,120.0,2.15,2.15,2.65,2.65
 CD4,CD4 cell count,0.0,120.0,397.0,397.0,1397.0,1397.0
 CD4#,CD4 cell count,0.0,120.0,397.0,397.0,1397.0,1397.0
-CGLU,CSF glucose,,,3.33,3.33,4.44,4.44
+CGLU,CSF glucose,0.0,18.0,3.33,3.33,4.44,4.44
 CGLU,CSF glucose,18.0,120.0,2.22,2.22,3.89,3.89
 CK,Creatine Kinase,1.0,3.0,0.0,0.0,228.0,228.0
 CK,Creatine Kinase,4.0,6.0,0.0,0.0,149.0,149.0
@@ -40,7 +40,7 @@ CK,Creatine Kinase,7.0,12.0,0.0,0.0,154.0,247.0
 CK,Creatine Kinase,13.0,17.0,0.0,0.0,123.0,270.0
 CK,Creatine Kinase,17.0,120.0,25.0,40.0,200.0,320.0
 CL,Chloride,0.0,120.0,95.0,95.0,108.0,108.0
-CLAC,CSF Lactate,,,1.1,1.1,2.8,2.8
+CLAC,CSF Lactate,0.0,18.0,1.1,1.1,2.8,2.8
 CLAC,CSF Lactate,18.0,120.0,1.1,1.1,2.4,2.4
 CREA,Creatinine,1.0,2.0,15.0,15.0,31.0,31.0
 CREA,Creatinine,3.0,4.0,23.0,23.0,37.0,37.0
@@ -51,10 +51,10 @@ CREA,Creatinine,11.0,12.0,39.0,39.0,60.0,60.0
 CREA,Creatinine,13.0,14.0,40.0,40.0,68.0,68.0
 CREA,Creatinine,15.0,120.0,45.0,59.0,84.0,104.0
 CRP,C-Reactive Protein,0.0,120.0,0.0,0.0,5.0,5.0
-CTP,CSF Total Protein,,,0.15,0.15,0.45,0.45
 CTP,CSF Total Protein,1.0,2.0,0.1,0.1,0.4,0.4
 CTP,CSF Total Protein,3.0,4.0,0.1,0.1,0.38,0.38
 CTP,CSF Total Protein,5.0,8.0,0.1,0.1,0.43,0.43
+CTP,CSF Total Protein,8.0,120.0,0.15,0.15,0.45,0.45
 DBIL,"Bilirubin, Direct",0.0,120.0,0.0,0.0,3.4,3.4
 DIG,Digoxin,0.0,120.0,0.5,0.5,2.0,2.0
 EOS,Eosinophils,0.0,120.0,0.04,0.04,0.4,0.4
@@ -81,7 +81,7 @@ FSH2,FSH,18.0,120.0,,1.5,,12.4
 GGT,GGT,1.0,11.0,4.0,4.0,12.0,12.0
 GGT,GGT,11.0,19.0,4.0,4.0,16.0,16.0
 GGT,GGT,19.0,120.0,0.0,0.0,40.0,60.0
-GLU,Glucose,,,3.3,3.3,5.6,5.6
+GLU,Glucose,0.0,18.0,3.3,3.3,5.6,5.6
 GLU,Glucose,18.0,120.0,4.1,4.1,5.6,5.6
 HB,Haemoglobin,0.0,120.0,115.0,130.0,160.0,170.0
 HBA2,Haemoglobin A2,0.0,120.0,2.0,2.0,3.5,3.5
@@ -90,7 +90,6 @@ HCG,"hCG, Total",0.0,120.0,,0.0,,2.0
 HCO3,Bicarbonate,1.0,16.0,19.0,19.0,28.0,28.0
 HCO3,Bicarbonate,16.0,120.0,22.0,22.0,29.0,29.0
 HCT,Haematocrit,0.0,120.0,0.35,0.4,0.45,0.55
-IGA,Immunoglobulin A,,,0.8,0.8,4.0,4.0
 IGA,Immunoglobulin A,1.0,2.0,0.3,0.3,1.2,1.2
 IGA,Immunoglobulin A,2.0,3.0,0.3,0.3,1.3,1.3
 IGA,Immunoglobulin A,3.0,6.0,0.4,0.4,2.0,2.0
@@ -98,7 +97,7 @@ IGA,Immunoglobulin A,6.0,9.0,0.5,0.5,2.4,2.4
 IGA,Immunoglobulin A,9.0,12.0,0.7,0.7,2.5,2.5
 IGA,Immunoglobulin A,12.0,15.0,0.8,0.8,2.8,2.8
 IGA,Immunoglobulin A,15.0,45.0,0.8,0.8,2.8,2.8
-IGG,Immunoglobulin G,,,6.0,6.0,16.0,16.0
+IGA,Immunoglobulin A,45.0,120.0,0.8,0.8,4.0,4.0
 IGG,Immunoglobulin G,1.0,2.0,3.1,3.1,13.8,13.8
 IGG,Immunoglobulin G,2.0,3.0,3.7,3.7,15.8,15.8
 IGG,Immunoglobulin G,3.0,6.0,4.9,4.9,16.1,16.1
@@ -106,7 +105,7 @@ IGG,Immunoglobulin G,6.0,9.0,5.4,5.4,16.1,16.1
 IGG,Immunoglobulin G,9.0,12.0,5.4,5.4,16.1,16.1
 IGG,Immunoglobulin G,12.0,15.0,5.4,5.4,16.1,16.1
 IGG,Immunoglobulin G,15.0,45.0,6.0,6.0,16.0,16.0
-IGM,Immunoglobulin M,,,0.5,0.5,2.0,2.0
+IGG,Immunoglobulin G,45.0,120.0,6.0,6.0,16.0,16.0
 IGM,Immunoglobulin M,1.0,2.0,0.5,0.5,2.2,2.2
 IGM,Immunoglobulin M,2.0,3.0,0.5,0.5,2.2,2.2
 IGM,Immunoglobulin M,3.0,6.0,0.5,0.5,2.0,2.0
@@ -114,6 +113,7 @@ IGM,Immunoglobulin M,6.0,9.0,0.5,0.5,1.8,1.8
 IGM,Immunoglobulin M,9.0,12.0,0.5,0.5,1.8,1.8
 IGM,Immunoglobulin M,12.0,15.0,0.5,0.5,1.9,1.9
 IGM,Immunoglobulin M,15.0,45.0,0.5,0.5,1.9,1.9
+IGM,Immunoglobulin M,45.0,120.0,0.5,0.5,2.0,2.0
 IRON,Iron,1.0,3.0,4.5,5.2,18.1,16.3
 IRON,Iron,4.0,6.0,5.0,4.5,16.7,20.6
 IRON,Iron,7.0,9.0,5.4,4.8,18.6,17.2
@@ -170,7 +170,8 @@ RET%,Reticulyte Percent,0.0,120.0,0.0,0.0,2.0,2.0
 SHBG,SHBG,20.0,49.0,24.6,18.3,122.0,54.1
 SHBG,SHBG,50.0,120.0,17.3,20.6,125.0,76.7
 TBA,Bile Acid,16.0,120.0,0.0,0.0,10.0,10.0
-TEST,Testosterone,,,0.1,0.1,0.4,1.1
+TEST,Testosterone,0.0,5.0,0.1,,0.4,
+TEST,Testosterone,0.0,6.0,,0.1,,1.1
 TEST,Testosterone,6.0,9.0,0.2,,0.5,
 TEST,Testosterone,7.0,9.0,,0.1,,0.9
 TEST,Testosterone,10.0,12.0,,0.2,,14.5
