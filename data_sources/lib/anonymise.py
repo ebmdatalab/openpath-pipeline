@@ -218,7 +218,7 @@ class RowAnonymiser:
         try:
             self.drop_unwanted_data(self)
             self.normalise_data(self)
-            self.skip_old_data(self)
+            self.skip_old_data()
             if self.custom_convert_to_result:
                 self.custom_convert_to_result(self)
             else:
