@@ -380,7 +380,11 @@ def combine_csvs(lab):
         # until that code is tested and known to be rebust: has the
         # number of tests in the previously-most-recent month stayed
         # within 20% of previous value?
-        final_month = sorted(existing["month"].unique())[-2]
+        assert (
+            len(existing[pd.isnull(existing["month"])]) == 0
+        ), "There are `nan` values for month"
+        month_vals = sorted(existing["month"].unique())
+        final_month = month_vals[-1]
         final_count = existing[existing["month"] == final_month].count().iloc[0]
         if unmerged_filenames:
             merged = pd.concat([existing, unmerged], sort=False)
