@@ -633,21 +633,24 @@ def process_files(
     filenames = sorted(filenames)
     seen_filenames = get_processed_filenames(lab)
     filenames = set(filenames) - set(seen_filenames)
-    process_file_partial = partial(
-        process_file,
-        lab,
-        reference_ranges,
-        log_level,
-        row_iterator,
-        drop_unwanted_data,
-        normalise_data,
-        convert_to_result,
-    )
-    if multiprocessing:
-        with Pool() as pool:
-            pool.map(process_file_partial, filenames)
+    if filenames:
+        process_file_partial = partial(
+            process_file,
+            lab,
+            reference_ranges,
+            log_level,
+            row_iterator,
+            drop_unwanted_data,
+            normalise_data,
+            convert_to_result,
+        )
+        if multiprocessing:
+            with Pool() as pool:
+                pool.map(process_file_partial, filenames)
+        else:
+            for f in filenames:
+                process_file_partial(f)
+        merged = combine_csvs(lab)
+        normalise_and_suppress(lab, merged)
     else:
-        for f in filenames:
-            process_file_partial(f)
-    merged = combine_csvs(lab)
-    normalise_and_suppress(lab, merged)
+        print("Nothing to do")
