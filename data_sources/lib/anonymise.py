@@ -420,6 +420,7 @@ CODE_MAPPINGS = {
     "nd": ["nd_testcode"],
     "cornwall": ["cornwall_testcode"],
     "plymouth": ["plym_testcode", "other_plym_codes"],
+    "cambridge": [],
 }
 
 
