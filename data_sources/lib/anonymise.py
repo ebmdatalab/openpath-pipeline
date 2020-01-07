@@ -5,6 +5,7 @@ Currently only works for XLS formatted inputs without column headers
 import datetime
 import csv
 import json
+import glob
 import io
 import os
 from dateutils import relativedelta
@@ -619,9 +620,10 @@ def process_files(
         really_reset = input("Really reset all data? (y/n)")
         if really_reset == "y":
             reset_lab(lab)
-            target_filename = "combined_{}.csv".format(lab)
-            if os.path.exists(target_filename):
-                os.remove(target_filename)
+            target_filenames = glob.glob("{}*{}.csv".format(get_env(), lab))
+            for target_filename in target_filenames:
+                if os.path.exists(target_filename):
+                    os.remove(target_filename)
         else:
             return
     filenames = sorted(filenames)
