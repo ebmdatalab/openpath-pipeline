@@ -65,7 +65,7 @@ def configLogger():
 
 
 def get_env():
-    return os.environ.get("OPATH_ENV", "") + "_"
+    return os.environ.get("OPATH_ENV", "")
 
 
 class RowAnonymiser:
