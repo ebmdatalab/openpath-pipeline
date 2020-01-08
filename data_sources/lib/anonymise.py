@@ -43,6 +43,8 @@ DATE_FLOOR = (date.today() - relativedelta(years=5)).strftime("%Y/%m/%d")
 
 REQUIRED_NORMALISED_KEYS = ["month", "test_code", "practice_id", "result_category"]
 
+INTERMEDIATE_DIR = Path.cwd() / "intermediate_data"
+
 
 class StopProcessing(Exception):
     pass
@@ -303,7 +305,7 @@ class Anonymiser:
                 candidate_basename = "{}_{}".format(converted_basename, dupes)
             converted_basename = candidate_basename
         converted_filename = "{}.csv".format(converted_basename)
-        df[cols].to_csv(converted_filename, index=False)
+        df[cols].to_csv(INTERMEDIATE_DIR / converted_filename, index=False)
         return converted_filename
 
 
@@ -365,7 +367,9 @@ def combine_csvs(lab):
             [
                 unmerged,
                 pd.read_csv(
-                    converted_filename, na_filter=False, dtype=processed_data_dtypes
+                    INTERMEDIATE_DIR / converted_filename,
+                    na_filter=False,
+                    dtype=processed_data_dtypes,
                 ),
             ]
         )
@@ -373,7 +377,9 @@ def combine_csvs(lab):
     # Now open the any existing "combined" file and append our new rows to that
     try:
         existing = pd.read_csv(
-            all_results_path, dtype=processed_data_dtypes, na_filter=False
+            INTERMEDIATE_DIR / all_results_path,
+            dtype=processed_data_dtypes,
+            na_filter=False,
         )
         # Test we're not re-appending rows to the same file. In theory
         # this shouldn't happen as we track imported filenames, but
@@ -402,7 +408,7 @@ def combine_csvs(lab):
         # The first time we've made a merged file
         merged = unmerged
     if unmerged_filenames:
-        merged.to_csv(all_results_path, index=False)
+        merged.to_csv(INTERMEDIATE_DIR / all_results_path, index=False)
     # Clean up unmerged files
     for _, filename in unmerged_filenames:
         mark_as_merged(lab, filename)
@@ -438,7 +444,7 @@ def _get_test_codes(lab, offline):
         uri, na_filter=False, usecols=columns + ["show_in_app?", "testname"]
     )
     if not offline:
-        df.to_csv("test_codes.csv", index=False)
+        df.to_csv(INTERMEDIATE_DIR / "test_codes.csv", index=False)
     df = df[df["show_in_app?"] == True]
 
     # Drop any mappings that are actually the same as the datalab one
@@ -631,10 +637,11 @@ def process_files(
         really_reset = input("Really reset all data? (y/n)")
         if really_reset == "y":
             reset_lab(lab)
-            target_filenames = glob.glob("{}*{}.csv".format(get_env(), lab))
+            target_filenames = glob.glob(
+                str(INTERMEDIATE_DIR / "{}*_{}*.csv".format(get_env(), lab))
+            )
             for target_filename in target_filenames:
-                if os.path.exists(target_filename):
-                    os.remove(target_filename)
+                os.remove(target_filename)
         else:
             return
     filenames = sorted(filenames)
