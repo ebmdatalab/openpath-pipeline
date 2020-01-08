@@ -77,6 +77,11 @@ def main():
         help="Delete existing files and import everything from scratch",
         action="store_true",
     )
+    parser.add_argument(
+        "--offline",
+        help="Run everything offline (don't fetch latest data)",
+        action="store_true",
+    )
     args = parser.parse_args()
     multiprocessing = not args.no_multiprocessing
     log_level = 50 - (args.verbose * 10)
@@ -108,8 +113,9 @@ def main():
             config.drop_unwanted_data,
             config.normalise_data,
             convert_to_result,
-            multiprocessing,
-            args.reimport,
+            multiprocessing=multiprocessing,
+            reimport=args.reimport,
+            offline=args.offline,
         )
 
 

@@ -424,16 +424,21 @@ CODE_MAPPINGS = {
 }
 
 
-def _get_test_codes(lab):
+def _get_test_codes(lab, offline):
     """Make a CSV of all the normalised test codes and lab test codes that
     have been marked in the Google Sheet for export.
 
     """
-    url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeLPEW4rTy_hCktuAXEsXtivcdREDuU7jKfXlvJ7CTEBycrxWyunBWdLgGe7Pm1A/pub?gid=241568377&single=true&output=csv"
+    if offline:
+        uri = "test_codes.csv"
+    else:
+        uri = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeLPEW4rTy_hCktuAXEsXtivcdREDuU7jKfXlvJ7CTEBycrxWyunBWdLgGe7Pm1A/pub?gid=241568377&single=true&output=csv"
     columns = CODE_MAPPINGS[lab] + ["datalab_testcode"]
     df = pd.read_csv(
-        url, na_filter=False, usecols=columns + ["show_in_app?", "testname"]
+        uri, na_filter=False, usecols=columns + ["show_in_app?", "testname"]
     )
+    if not offline:
+        df.to_csv("test_codes.csv", index=False)
     df = df[df["show_in_app?"] == True]
 
     # Drop any mappings that are actually the same as the datalab one
@@ -451,7 +456,7 @@ def _get_test_codes(lab):
     return df[columns]
 
 
-def _normalise_test_codes(lab, df):
+def _normalise_test_codes(lab, df, offline):
     """Convert local test codes into a normalised version.
 
     """
@@ -462,7 +467,7 @@ def _normalise_test_codes(lab, df):
     # hand and recorded in a Google Sheet; @helenCEBM is in the
     # process of documenting this.
 
-    test_code_mapping = _get_test_codes(lab)
+    test_code_mapping = _get_test_codes(lab, offline)
     output = pd.DataFrame(columns=orig_cols)
     # For each test code identified for the lab in our
     # manually-curated mapping spreadsheet, rename any codes to our
@@ -480,7 +485,7 @@ def _normalise_test_codes(lab, df):
     return output
 
 
-def normalise_and_suppress(lab, merged):
+def normalise_and_suppress(lab, merged, offline):
     """Given a lab id and a file containing all processed data, (a)
     normalise test codes so they are consistent through time (e.g. the
     code for HB in one lab might be HB1 in April and change to HB2 in
@@ -488,7 +493,7 @@ def normalise_and_suppress(lab, merged):
 
     """
     anonymised_results_path = "{}anonymised_{}.csv".format(get_env(), lab)
-    normalised = _normalise_test_codes(lab, merged)
+    normalised = _normalise_test_codes(lab, merged, offline)
     # We have to convert these columns to categories *after* all the
     # constituent files have been loaded, as only then are all the
     # categorical values known
@@ -620,6 +625,7 @@ def process_files(
     convert_to_result,
     multiprocessing=False,
     reimport=False,
+    offline=False,
 ):
     if reimport:
         really_reset = input("Really reset all data? (y/n)")
@@ -652,6 +658,6 @@ def process_files(
             for f in filenames:
                 process_file_partial(f)
         merged = combine_csvs(lab)
-        normalise_and_suppress(lab, merged)
+        normalise_and_suppress(lab, merged, offline)
     else:
         print("Nothing to do")
