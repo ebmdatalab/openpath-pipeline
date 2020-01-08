@@ -8,6 +8,7 @@ import json
 import glob
 import io
 import os
+from pathlib import Path
 from dateutils import relativedelta
 from datetime import date
 from multiprocessing import Pool
@@ -444,7 +445,7 @@ def _get_test_codes(lab, offline):
         uri, na_filter=False, usecols=columns + ["show_in_app?", "testname"]
     )
     if not offline:
-        df.to_csv(INTERMEDIATE_DIR / "test_codes.csv", index=False)
+        df.to_csv("test_codes.csv", index=False)
     df = df[df["show_in_app?"] == True]
 
     # Drop any mappings that are actually the same as the datalab one

@@ -1,0 +1,343 @@
+datalab_testcode,testname,show_in_app?
+CREA,Creatinine,True
+K,Potassium,True
+GFR1,GFR1,True
+HB,Haemoglobin,True
+MCHC,Mean Corpuscular Haemoglobin Concentration ,True
+RBC,Red Blood Cell,True
+MONO,Monocyte,True
+WBC,White Blood Cell,True
+HCT,Haematocrit,True
+MCH,Mean Corpuscular Haemoglobin,True
+RDW,Red Cell Distribution Width,True
+MCV,Mean Corpuscular Volume,True
+LYMP,Lymphocyte,True
+BASO,Basophil,True
+EOS,Eosinophils,True
+PLT,Platelet Count,True
+NEUT,Neutrophil Count,True
+ALB,Albumin,True
+TP,"Protein, Total",True
+ALKP,Alkaline Phosphatase,True
+ALT,ALT,True
+TBIL,"Bilirubin, Total",True
+H1CF,HBA1C,True
+CRP,C-Reactive Protein,True
+CHOL,"Cholesterol, Total",True
+HDL,"Cholesterol, HDL",True
+HDLR,Cholesterol/high density lipoprotein ratio,True
+TSH,Serum TSH (thyroid stimulating hormone),True
+UREA,Urea,True
+CL,Chloride,True
+CA,Calcium,True
+NHDL,"Cholesterol, non-HDL",True
+PV,Plasma Viscosity,True
+FER,Ferritin,True
+INR,INR,True
+ALCA,ALCA,False
+UCRE,Urine Creatinine,True
+AKIT,AKI Flagging Level,False
+UALB,Urine Albumin,True
+UACT,Urine Albumin/Creatinine Ratio,True
+VITB12,Vitamin B12,True
+FOL,Folate,True
+L,Lipaemic Index,False
+H,Haemolysis index,False
+I,Icteric Index,False
+ADCA,Calcium (Adjusted),True
+FT4,Free T4,True
+AKIK,AKIK,False
+PSA,"PSA, Total",True
+TRIG,Triglycerides,True
+FILM,FILM,True
+PT,Prothrombin time,True
+CAR,CAR,False
+GLU,Glucose,True
+AMY,Amylase,True
+FIB,Fibrinogen,True
+APTR,APTR,True
+AKIS,AKI Flagging Level GPS,False
+PHOS,Phosphate,True
+IGA,Immunoglobulin A,True
+TTG,Serum tissue transglutaminase,True
+TROP,Troponin T,False
+APTT,APTT Ratio,True
+CFIB,Clauss Fibrinogen ,False
+C125,CA 125,True
+UA,Urate,True
+MG,Magnesium,True
+LDL,"Cholesterol, LDL",True
+LDLR,Low density lipoprotein/high density lipoprotein ratio,False
+FDP,D Dimers,True
+IGG,Immunoglobulin G,True
+IGM,Immunoglobulin M,True
+GGT,Gamma G.T.,True
+FSH2,FSH,True
+CK,Creatine Kinase,True
+VITD,Vitamin D,True
+LH,LH (luteinising hormone),True
+PTH,Parathyroid Hormone,True
+NBNP,NTpro BNP,True
+CCOM,Consultant comment:,False
+RF,Rheumatoid Factor,True
+HBA2,Haemoglobin A2,False
+HBF,Foetal Haemoglobin,False
+UTP,Urine Total Protein,True
+PRL3,Prolactin,True
+EPH,Protein Electrophoresis,False
+SSOL,Sickle Cell Screening,False
+FOQ,FOQ,False
+GEST,Weeks gestation,False
+LDH,LDH,True
+HCO3,Bicarbonate,True
+ATP2,TPO,False
+OESD,Estradiol,False
+LITH,Lithium,True
+RETIC,Reticulyte Count,True
+TEST,Testosterone,True
+RETP,Reticulyte Percent,True
+HCG,"hCG, Total",True
+ANA,Anti-Nuclear Antibody,False
+UBJP,Urine Bence-Jones Protein,True
+PARA,Paracetamol,False
+ACCP,Anti-CCP,True
+GF,Glandular Fever Screen,True
+IGAT,IGAT,False
+UTPC,Urine Total Protein/Creatinine Ratio,False
+FT3,Free T3,True
+PRG3,Progesterone,False
+BANA,BANA,False
+BAN%,BAN%,False
+AST,AST,True
+NRBC,Nucleated RBCs,False
+WS,WS,False
+ADNA,ADNA,True
+FAI,Free Androgen Index,True
+SHBG,Sex Hormone Binding Globulin,True
+CEA,CEA,False
+CORT,Cortisol,True
+ENA,Extractable Nuclear Antigen,True
+ESR,Erythrocyte sedimentation rate,True
+ALKM,Anti-LKM,False
+AM,Anti-Mitochondrial,False
+ASM,Anti-Smooth Muscle,True
+IGFX,Immunofixation,False
+MYEL,Myelocyte Count,False
+IRO2,Serum Iron,True
+TRAN,TRAN,False
+TSAT,TSAT,False
+ALBX,ALBX,False
+UVOL,UVOL,False
+UTIM,UTIM,False
+EAR,EAR,False
+AFP2,AFP2,False
+YAR,YAR,False
+IF,IF,False
+ANAP,ANAP,False
+THEO,Theophylline,True
+YVOL,YVOL,False
+B27,B27,False
+A1AT,A1AT,False
+OSMO,Osmolality,True
+UK,Urine Potassium (random),True
+ANAT,ANAT,False
+UNA,Urine Sodium (random),True
+UAR,UAR,False
+IGE,IgE,True
+RFT,RFT,False
+FIBC,FIBC,False
+FCPT,FCPT,False
+UHSP,UHSP,False
+BIAC,BIAC,False
+C3,C3,True
+C4,C4,True
+ANCA,ANCA,True
+UOSM,Urine Osmolality,True
+YMET,YMET,False
+YNOM,YNOM,False
+PYT1,PYT1,False
+TACR,TACR,True
+ACAG,ACAG,False
+ACAM,ACAM,False
+KAPP,KAPP,False
+LAMB,LAMB,False
+Z,Z,False
+KLRT,KLRT,False
+LKRT,LKRT,False
+EXT,EXT,False
+BLST,BLST,False
+REJ,REJ,True
+COPP,Copper,False
+CANC,CANC,True
+PANC,PANC,True
+CAER,CAER,True
+UIFX,UIFX,False
+MAT,MAT,False
+MPB1,MPB1,False
+MPB2,MPB2,False
+FAR,FAR,False
+DIG,Digoxin,True
+DBIL,"Bilirubin, Direct",False
+SALI,Salicylate,False
+AEND,AEND,False
+LACT,Lactate,True
+AKIG,AKIG,False
+ATGB,ATGB,False
+TGLB,TGLB,False
+CBMP,CBMP,False
+AMYE,AMYE,False
+37712,37712,False
+HODM,HODM,False
+C282,C282,False
+H63D,H63D,False
+YCOR,YCOR,False
+YHIA,YHIA,False
+PROC,Corrected Prolactin,False
+PROR,PROR,False
+DOGD,DOGD,False
+ACE,ACE,True
+ACR,ACR,False
+F5L,F5L,False
+P202,P202,False
+CATE,CATE,False
+INT,INT,False
+PROM,PROM,False
+LA1,LA1,False
+LA2,LA2,False
+LA3,LA3,False
+CYCL,CYCL,False
+AT3,Antithrombin activity,False
+FPS,Free Protein S Antigen,True
+FPE1,FPE1,False
+GPMX,GPMX,False
+DOR,DOR,False
+GESU,GESU,False
+SCRR,SCRR,False
+IGF1,IGF1,False
+MILK,MILK,False
+B2M1,B2M1,False
+ASR,ASR,False
+MAST,MAST,True
+FRU2,FRU2,False
+TPMX,TPMX,False
+VITA,VITA,True
+VITE,VITE,True
+C199,C199,True
+GEND,GEND,False
+BEX,BEX,False
+PCO2,PCO2,True
+PH,PH,False
+PO2,PO2,True
+OSAT,OSAT,False
+SBIC,SBIC,True
+TCO2,TCO2,False
+LIAP,LIAP,False
+PEAN,PEAN,False
+REF,REF,False
+PC,Protein C,True
+BOAP,BOAP,False
+ASPF,ASPF,False
+TMT3,TMT3,False
+DHEA,DHEA,False
+SELE,SELE,False
+PCA,PCA,False
+TRAB,TRAB,False
+WHET,WHET,False
+UEXT,UEXT,False
+HREJ,HREJ,False
+BIAP,BIAP,False
+MDMX,MDMX,False
+MGEX,MGEX,False
+MGSM,MGSM,False
+CASH,CASH,False
+VWAC,Von Willebrand Activity,False
+WEGG,WEGG,False
+LUA1,Lupus LUA1,False
+PITY,PITY,False
+BRAZ,BRAZ,False
+VWR,VWR,False
+FCLI,FCLI,False
+PB,PB,False
+AGAD,AGAD,False
+AMH,AMH,True
+FAPP,FAPP,False
+FPH,FPH,False
+HAZE,HAZE,False
+UCPR,UCPR,False
+IA2,IA2,True
+PC3P,PC3P,False
+ALMO,ALMO,False
+WALN,WALN,False
+GLAC,GLAC,False
+YCA,Urine 24hr Calcium,False
+ZCA,ZCA,False
+GFR2,GFR2,False
+GH2,GH2,False
+CGSM,CGSM,False
+GLUT,GLUT,False
+VALP,VALP,True
+F8C,F8C,False
+RENS,RENS,False
+ALDS,ALDS,False
+C1EF,C1EF,True
+C1EI,C1EI,True
+ALCO,Alcohol,False
+ARR,ARR,False
+ASKA,ASKA,False
+F8S,F8S,False
+VWAG,Von Willebrand Antigen,True
+YTP,YTP,False
+ZNT8,ZNT8,True
+ZTP,ZTP,False
+GENT,Gentamicin,True
+PIST,PIST,False
+ZUA,ZUA,False
+CALC,CALC,False
+PECA,PECA,False
+SHRI,SHRI,False
+YUA,Urine 24hr Urate,False
+AMMO,Ammonia,False
+CHED,CHED,False
+JAK2,JAK2,True
+UPOR,UPOR,True
+AMSK,AMSK,False
+BHEL,BHEL,False
+CHRO,CHRO,False
+COB,COB,False
+KETO,KETO,False
+UPCR,UPCR,False
+XALB,XALB,False
+XTP,XTP,False
+ZCRE,ZCRE,False
+HORD,HORD,False
+M2,M2,False
+YCRE,YCRE,False
+YOXA,YOXA,False
+CGLU,CSF glucose,False
+COD,COD,False
+COMM,COMM,False
+CTP,CSF Total Protein,False
+F8AG,F8AG,False
+FOB1,FOB1,False
+MACA,MACA,False
+NT,NT,False
+STRA,STRA,False
+UCP,UCP,True
+UPBG,UPBG,False
+AGBM,AGBM,False
+CO,CO,True
+FOB2,FOB2,False
+FOB3,FOB3,False
+VITD2,D2,False
+VITD3,D3,False
+QD,QD,False
+TOMA,TOMA,False
+UAMP,UAMP,False
+UBEN,UBEN,False
+UCOC,UCOC,False
+ARO,ARO,False
+UOPI,UOPI,False
+XLDH,XLDH,False
+LUC,Large unstained cells ,False
+MPV,Mean platelet volume,False
+GLOB,Globulin (liver),False
