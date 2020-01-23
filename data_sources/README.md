@@ -11,7 +11,17 @@ for reference ranges; or because a value was non-numeric).
 
 To run the cornwall processor, for example:
 
-    python runner.py cornwall north_devon/sample.xlsx
+    DATA_BASEDIR=/mnt/secure_private_data python runner.py cornwall north_devon/sample.xlsx
+
+To run against sample / test data (no-multiprocessing makes debugging easier):
+
+    python runner.py  cambridge -v --no-multiprocessing --reimport --single-file=cambridge/example.csv
+
+The runner aims to be idempotent; current progress is recorded in a
+SQLite database. Only new, unprocessed files are processed in a normal
+run. A `--reimport` switch indicates everything should be wiped and
+started from the beginnging
+
 
 # Making a data source
 
