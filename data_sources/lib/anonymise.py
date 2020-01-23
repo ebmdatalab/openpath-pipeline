@@ -507,19 +507,23 @@ def normalise_and_suppress(lab, merged, offline):
     normalised["test_code"] = normalised["test_code"].astype(
         CategoricalDtype(ordered=False)
     )
-    # Aggregate data to produce counts, and suppress low numbers.
-    normalised.loc[:, "count"] = 0
-    aggregated = (
-        normalised.groupby(
-            ["month", "test_code", "practice_id", "result_category"], observed=True
-        )
-        .count()
-        .dropna()
-    ).reset_index()
-    aggregated.loc[aggregated["count"] < SUPPRESS_UNDER, "count"] = SUPPRESS_STRING
-    aggregated[
-        ["month", "test_code", "practice_id", "result_category", "count"]
-    ].to_csv(anonymised_results_path, index=False)
+    if len(normalised):
+        # Aggregate data to produce counts, and suppress low numbers.
+        normalised.loc[:, "count"] = 0
+        aggregated = (
+            normalised.groupby(
+                ["month", "test_code", "practice_id", "result_category"], observed=True
+            )
+            .count()
+            .dropna()
+        ).reset_index()
+        aggregated.loc[aggregated["count"] < SUPPRESS_UNDER, "count"] = SUPPRESS_STRING
+        aggregated[
+            ["month", "test_code", "practice_id", "result_category", "count"]
+        ].to_csv(anonymised_results_path, index=False)
+        return anonymised_results_path
+    else:
+        return None
 
 
 def get_engine():
@@ -666,6 +670,10 @@ def process_files(
             for f in filenames:
                 process_file_partial(f)
         merged = combine_csvs(lab)
-        normalise_and_suppress(lab, merged, offline)
+        finished = normalise_and_suppress(lab, merged, offline)
+        if finished:
+            print("Final data at {}".format(finished))
+        else:
+            print("No data written")
     else:
         print("Nothing to do")
