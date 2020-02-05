@@ -146,7 +146,7 @@ UAR,UAR,False
 IGE,IgE,True
 RFT,RFT,False
 FIBC,FIBC,False
-FCPT,FCPT,False
+FCPT,FCPT,True
 UHSP,UHSP,False
 BIAC,BIAC,False
 C3,C3,True
@@ -341,3 +341,6 @@ XLDH,XLDH,False
 LUC,Large unstained cells ,False
 MPV,Mean platelet volume,False
 GLOB,Globulin (liver),False
+PDW,Platelet Distribution Width,False
+PCT,Plateletcrit,False
+SNA,Serum sodium,False
