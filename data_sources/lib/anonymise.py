@@ -3,25 +3,12 @@
 Currently only works for XLS formatted inputs without column headers
 """
 from functools import lru_cache
-from functools import partial
-from multiprocessing import Pool
 import csv
-import glob
 import json
 import logging
 import os
 import pandas as pd
 
-from .whole_file_processing import (
-    combine_and_append_csvs,
-    normalise_and_suppress,
-    make_final_csv,
-)
-from .intermediate_file_tracking import (
-    mark_as_processed,
-    reset_lab,
-    get_processed_filenames,
-)
 from .settings import *
 
 
@@ -279,82 +266,3 @@ class Anonymiser:
         converted_filename = "{}.csv".format(converted_basename)
         df[cols].to_csv(INTERMEDIATE_DIR / converted_filename, index=False)
         return converted_filename
-
-
-def process_file(
-    lab,
-    reference_ranges,
-    log_level,
-    row_iterator,
-    drop_unwanted_data,
-    normalise_data,
-    convert_to_result,
-    filename,
-):
-    anonymiser = Anonymiser(
-        lab,
-        reference_ranges=reference_ranges,
-        row_iterator=row_iterator,
-        drop_unwanted_data=drop_unwanted_data,
-        normalise_data=normalise_data,
-        convert_to_result=convert_to_result,
-        log_level=log_level,
-    )
-    anonymiser.feed_file(filename)
-    converted_filename = anonymiser.to_csv()
-    mark_as_processed(lab, filename, converted_filename)
-
-
-def process_files(
-    lab,
-    reference_ranges,
-    log_level,
-    filenames,
-    row_iterator,
-    drop_unwanted_data,
-    normalise_data,
-    convert_to_result,
-    multiprocessing=False,
-    reimport=False,
-    offline=False,
-):
-    if reimport:
-        really_reset = input("Really reset all data? (y/n)")
-        if really_reset == "y":
-            reset_lab(lab)
-            target_filenames = glob.glob(
-                str(INTERMEDIATE_DIR / "{}*_{}*.csv".format(ENV, lab))
-            )
-            for target_filename in target_filenames:
-                os.remove(target_filename)
-        else:
-            return
-    filenames = sorted(filenames)
-    seen_filenames = get_processed_filenames(lab)
-    filenames = set(filenames) - set(seen_filenames)
-    if filenames:
-        process_file_partial = partial(
-            process_file,
-            lab,
-            reference_ranges,
-            log_level,
-            row_iterator,
-            drop_unwanted_data,
-            normalise_data,
-            convert_to_result,
-        )
-        if multiprocessing:
-            with Pool() as pool:
-                pool.map(process_file_partial, filenames)
-        else:
-            for f in filenames:
-                process_file_partial(f)
-        merged = combine_and_append_csvs(lab)
-        finished = normalise_and_suppress(lab, merged, offline)
-        combined = make_final_csv()
-        if finished:
-            print("Final data at {}".format(combined))
-        else:
-            print("No data written")
-    else:
-        print("Nothing to do")
