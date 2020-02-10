@@ -9,7 +9,6 @@ import glob
 import io
 import os
 import requests
-from pathlib import Path
 from dateutils import relativedelta
 from datetime import date
 from multiprocessing import Pool
@@ -23,43 +22,7 @@ from sqlalchemy import Table, Column, String, DateTime, MetaData, Index
 from sqlalchemy.sql import and_
 from sqlalchemy.sql import select
 
-RANGE_CEILING = 99999
-
-SUPPRESS_UNDER = 6
-SUPPRESS_STRING = "1-{}".format(SUPPRESS_UNDER - 1)
-
-
-# Error codes
-WITHIN_RANGE = 0
-UNDER_RANGE = -1
-OVER_RANGE = 1
-ERR_NO_REF_RANGE = 2
-ERR_UNPARSEABLE_RESULT = 3
-ERR_INVALID_SEX = 4
-ERR_INVALID_RANGE_WITH_DIRECTION = 5
-ERR_DISCARDED_AGE = 6
-ERR_INVALID_REF_RANGE = 7
-
-#
-ERROR_CODE_NAMES = {
-    WITHIN_RANGE: "Within range",
-    UNDER_RANGE: "Under range",
-    OVER_RANGE: "Over range",
-    ERR_NO_REF_RANGE: "No ref range",
-    ERR_UNPARSEABLE_RESULT: "Non-numeric result",
-    ERR_INVALID_SEX: "Unknown sex",
-    ERR_INVALID_RANGE_WITH_DIRECTION: "Insufficient data",
-    ERR_DISCARDED_AGE: "Underage for ref range",
-    ERR_INVALID_REF_RANGE: "Invalid ref range",
-}
-
-
-DATE_FLOOR = (date.today() - relativedelta(years=5)).strftime("%Y/%m/%d")
-
-REQUIRED_NORMALISED_KEYS = ["month", "test_code", "practice_id", "result_category"]
-
-INTERMEDIATE_DIR = Path.cwd() / "intermediate_data"
-FINAL_DIR = Path.cwd() / "final_data"
+from .settings import *
 
 
 class StopProcessing(Exception):
