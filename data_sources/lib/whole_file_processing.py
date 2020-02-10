@@ -1,15 +1,15 @@
-import datetime
 from datetime import date
 from dateutils import relativedelta
-import requests
+from pandas.api.types import CategoricalDtype
+import datetime
+import glob
 import io
 import os
-from pandas.api.types import CategoricalDtype
 import pandas as pd
-import glob
+import requests
 
-from .settings import *
 from .intermediate_file_tracking import get_unmerged_filenames, mark_as_merged
+from .settings import *
 
 
 def _date_dtype():

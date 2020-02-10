@@ -2,17 +2,16 @@
 
 Currently only works for XLS formatted inputs without column headers
 """
-import csv
-import json
-import glob
-import os
-from multiprocessing import Pool
-import logging
-import pandas as pd
-from functools import partial
 from functools import lru_cache
+from functools import partial
+from multiprocessing import Pool
+import csv
+import glob
+import json
+import logging
+import os
+import pandas as pd
 
-from .settings import *
 from .whole_file_processing import (
     combine_and_append_csvs,
     normalise_and_suppress,
@@ -23,6 +22,7 @@ from .intermediate_file_tracking import (
     reset_lab,
     get_processed_filenames,
 )
+from .settings import *
 
 
 class StopProcessing(Exception):
@@ -60,7 +60,6 @@ class RowAnonymiser:
         self.drop_unwanted_data = drop_unwanted_data
         self.normalise_data = normalise_data
         self.custom_convert_to_result = convert_to_result
-        # self.reference_ranges_path = reference_ranges_path
 
         streamhandler = logging.StreamHandler()
         logging.basicConfig(
@@ -107,7 +106,7 @@ class RowAnonymiser:
                     break
                 high = low = None
                 if last_matched_test and last_matched_test != ref_range["test"]:
-                    # short-circuit as the rows should be sorted by test
+                    # We can short-circuit as the rows are sorted by test
                     self.log_info("No matching ref range found")
                     return_code = ERR_NO_REF_RANGE
                     break
@@ -115,7 +114,7 @@ class RowAnonymiser:
                 if age >= int(float(ref_range["min_adult_age"])) and age < int(
                     float(ref_range["max_adult_age"])
                 ):
-                    # matched the age
+                    # We've found a reference range matching this row's age
                     if sex == "M":
                         if ref_range["low_M"] and ref_range["high_M"]:
                             low = float(ref_range["low_M"])

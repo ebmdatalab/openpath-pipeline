@@ -1,8 +1,9 @@
-from sqlalchemy import create_engine
 from sqlalchemy import Table, Column, String, DateTime, MetaData, Index
+from sqlalchemy import create_engine
 from sqlalchemy.sql import and_
 from sqlalchemy.sql import select
 import datetime
+
 from .settings import *
 
 
