@@ -3,6 +3,7 @@
 from pathlib import Path
 from dateutils import relativedelta
 from datetime import date
+import os
 
 # XXX not sure of the purpose of this
 RANGE_CEILING = 99999
@@ -49,3 +50,5 @@ INTERMEDIATE_DIR = Path.cwd() / "intermediate_data"
 
 # Directory for data that can be copied out of the secure environment
 FINAL_DIR = Path.cwd() / "final_data"
+
+ENV = os.environ.get("OPATH_ENV", "")
