@@ -8,6 +8,7 @@ import json
 import glob
 import io
 import os
+import requests
 from pathlib import Path
 from dateutils import relativedelta
 from datetime import date
@@ -38,13 +39,27 @@ ERR_INVALID_SEX = 4
 ERR_INVALID_RANGE_WITH_DIRECTION = 5
 ERR_DISCARDED_AGE = 6
 ERR_INVALID_REF_RANGE = 7
-ERR_NO_TEST_CODE = 8
+
+#
+ERROR_CODE_NAMES = {
+    WITHIN_RANGE: "Within range",
+    UNDER_RANGE: "Under range",
+    OVER_RANGE: "Over range",
+    ERR_NO_REF_RANGE: "No ref range",
+    ERR_UNPARSEABLE_RESULT: "Non-numeric result",
+    ERR_INVALID_SEX: "Unknown sex",
+    ERR_INVALID_RANGE_WITH_DIRECTION: "Insufficient data",
+    ERR_DISCARDED_AGE: "Underage for ref range",
+    ERR_INVALID_REF_RANGE: "Invalid ref range",
+}
+
 
 DATE_FLOOR = (date.today() - relativedelta(years=5)).strftime("%Y/%m/%d")
 
 REQUIRED_NORMALISED_KEYS = ["month", "test_code", "practice_id", "result_category"]
 
 INTERMEDIATE_DIR = Path.cwd() / "intermediate_data"
+FINAL_DIR = Path.cwd() / "final_data"
 
 
 class StopProcessing(Exception):
@@ -332,13 +347,57 @@ def _result_dtype():
             ERR_INVALID_RANGE_WITH_DIRECTION,
             ERR_DISCARDED_AGE,
             ERR_INVALID_REF_RANGE,
-            ERR_NO_TEST_CODE,
         ],
         ordered=False,
     )
 
 
-def combine_csvs(lab):
+def _processed_data_dtypes():
+    return {
+        "month": _date_dtype(),
+        "test_code": str,
+        "practice_id": str,
+        "result_category": _result_dtype(),
+    }
+
+
+def combine_csvs_to_dataframe(csv_filenames):
+    """Combine CSVs (which must include columns defined in
+    _processed_data_dtypes())
+
+    """
+    categorical = CategoricalDtype(ordered=False)
+    dtypes = {
+        "ccg_id": categorical,
+        "practice_id": categorical,
+        "count": int,
+        "error": int,
+        "lab_id": categorical,
+        "practice_name": categorical,
+        "result_category": int,
+        "test_code": categorical,
+        "total_list_size": int,
+    }
+    unmerged = pd.read_csv(
+        # Reading an empty CSV in this way allows us to define column
+        # types for an empty dataframe, which we can use for `concat`
+        # operations
+        io.StringIO(""),
+        names=dtypes.keys(),
+        dtype=dtypes,
+    )
+    for filename in csv_filenames:
+        unmerged = pd.concat(
+            [
+                unmerged,
+                pd.read_csv(INTERMEDIATE_DIR / filename, na_filter=False, dtype=dtypes),
+            ],
+            sort=False,
+        )
+    return unmerged
+
+
+def combine_and_append_csvs(lab):
     """For a given lab, combine any unmerged monthly files and append them
     to an an existing `combined` file.  Also sanity checks data to
     provide some assurance data hasn't been appended twice.
@@ -348,32 +407,9 @@ def combine_csvs(lab):
 
     # First, build a single dataframe of all the constituent monthly
     # CSVs that have not previously been processed
-    processed_data_dtypes = {
-        "month": _date_dtype(),
-        "test_code": str,
-        "practice_id": str,
-        "result_category": _result_dtype(),
-    }
-    unmerged_filenames = get_unmerged_filenames(lab)
-    unmerged = pd.read_csv(
-        # Reading an empty CSV in this way allows us to define column
-        # types for an empty dataframe, which we can use for `concat`
-        # operations
-        io.StringIO(""),
-        names=REQUIRED_NORMALISED_KEYS,
-        dtype=processed_data_dtypes,
-    )
-    for source_filename, converted_filename in unmerged_filenames:
-        unmerged = pd.concat(
-            [
-                unmerged,
-                pd.read_csv(
-                    INTERMEDIATE_DIR / converted_filename,
-                    na_filter=False,
-                    dtype=processed_data_dtypes,
-                ),
-            ]
-        )
+    processed_data_dtypes = _processed_data_dtypes()
+    unmerged_filenames = [x[1] for x in get_unmerged_filenames(lab)]
+    unmerged = combine_csvs_to_dataframe(unmerged_filenames)
 
     # Now open the any existing "combined" file and append our new rows to that
     try:
@@ -411,9 +447,9 @@ def combine_csvs(lab):
     if unmerged_filenames:
         merged.to_csv(INTERMEDIATE_DIR / all_results_path, index=False)
     # Clean up unmerged files
-    for _, filename in unmerged_filenames:
+    for filename in unmerged_filenames:
         mark_as_merged(lab, filename)
-        # xxx REINSTATE XXX os.remove(filename)
+        os.remove(INTERMEDIATE_DIR / filename)
     # Thes columns can't be categorical up-front as we don't know what
     # practice ids or test codes are going to be present until thie end
     merged["practice_id"] = merged["practice_id"].astype(
@@ -492,6 +528,84 @@ def _normalise_test_codes(lab, df, offline):
     return output
 
 
+def normalise_practice_codes(df, lab_code):
+    # XXX move to ND data processor?
+    if lab_code == "nd":
+        prac = pd.read_csv(
+            INTERMEDIATE_DIR / "north_devon_practice_mapping.csv", na_filter=False
+        )
+
+        df3 = df.copy()
+        df3 = df3.merge(
+            prac, left_on="practice_id", right_on="LIMS code", how="inner"
+        ).drop("LIMS code", axis=1)
+        df3 = df3.loc[pd.notnull(df3["ODS code"])]
+        df3 = df3.rename(
+            columns={"practice_id": "old_practice_id", "ODS code": "practice_id"}
+        ).drop("old_practice_id", axis=1)
+        return df3
+    else:
+        return df
+
+
+def estimate_errors(df):
+    """Add a column indicating the "error" range for suppressed values
+    """
+    df["count"] = df["count"].replace("1-5", 3)
+    df.loc[df["count"] == 3, "error"] = 2
+    df["error"] = df["error"].fillna(0)
+    df["count"] = pd.to_numeric(df["count"])
+    return df
+
+
+def trim_trailing_months(df):
+    """There is often a lead-in to the available data. Filter out months
+    which have less than 5% the max monthly test count
+    """
+    t2 = df.groupby(["month"])["count"].sum().reset_index().sort_values(by="count")
+    t2 = t2.loc[(t2[("count")] > t2[("count")].max() * 0.05)]
+    return df.merge(t2["month"].reset_index(drop=True), on="month", how="inner")
+
+
+def get_practices():
+    """Make a CSV of "standard" GP practices and list size data.
+    """
+    practices_url = (
+        "https://openprescribing.net/api/1.0/org_code/?org_type=practice&format=csv"
+    )
+    target_path = FINAL_DIR / "practice_codes.csv"
+    # For some reason delegating the URL-grabbing to pandas results in a 403
+    df = pd.read_csv(io.StringIO(requests.get(practices_url).text), na_filter=False)
+    df = df[df["setting"] == 4]
+    stats_url = "https://openprescribing.net/api/1.0/org_details/?org_type=practice&keys=total_list_size&format=csv"
+    df_stats = pd.read_csv(io.StringIO(requests.get(stats_url).text), na_filter=False)
+    # Left join because we want to keep practices without populations
+    # for calculating proportions
+    df = df.merge(
+        df_stats, left_on=["code"], right_on=["row_id"], how="left"
+    ).sort_values(by=["code", "date"])
+    df = df[["ccg", "code", "name", "date", "total_list_size"]]
+    df.columns = ["ccg_id", "practice_id", "practice_name", "month", "total_list_size"]
+    df.to_csv(target_path, index=False)
+
+
+def trim_practices_and_add_population(df):
+    """Remove practices unlikely to be normal GP ones
+    """
+    # 1. Join on practices table
+    # 2. Remove practices with fewer than 1000 total tests
+    # 3. Remove practices that are missing population data
+    practices = pd.read_csv(FINAL_DIR / "practice_codes.csv", na_filter=False)
+    practices["month"] = pd.to_datetime(practices["month"])
+    df["month"] = pd.to_datetime(df["month"])
+    return df.merge(
+        practices,
+        how="inner",
+        left_on=["month", "practice_id"],
+        right_on=["month", "practice_id"],
+    )
+
+
 def normalise_and_suppress(lab, merged, offline):
     """Given a lab id and a file containing all processed data, (a)
     normalise test codes so they are consistent through time (e.g. the
@@ -499,7 +613,9 @@ def normalise_and_suppress(lab, merged, offline):
     May); (b) do low-number suppression against the entire dataset
 
     """
-    anonymised_results_path = "{}anonymised_{}.csv".format(get_env(), lab)
+    anonymised_results_path = INTERMEDIATE_DIR / "{}processed_{}.csv".format(
+        get_env(), lab
+    )
     normalised = _normalise_test_codes(lab, merged, offline)
     # We have to convert these columns to categories *after* all the
     # constituent files have been loaded, as only then are all the
@@ -518,9 +634,17 @@ def normalise_and_suppress(lab, merged, offline):
             .dropna()
         ).reset_index()
         aggregated.loc[aggregated["count"] < SUPPRESS_UNDER, "count"] = SUPPRESS_STRING
-        aggregated[
+        aggregated = aggregated[
             ["month", "test_code", "practice_id", "result_category", "count"]
-        ].to_csv(anonymised_results_path, index=False)
+        ]
+        aggregated["lab_id"] = lab
+        aggregated = normalise_practice_codes(aggregated, lab)
+        aggregated = estimate_errors(aggregated)
+        aggregated = trim_trailing_months(aggregated)
+        # get_practices()
+        aggregated = trim_practices_and_add_population(aggregated)
+
+        aggregated.to_csv(anonymised_results_path, index=False)
         return anonymised_results_path
     else:
         return None
@@ -625,6 +749,48 @@ def process_file(
     mark_as_processed(lab, filename, converted_filename)
 
 
+def make_final_csv():
+    filenames = glob.glob(str(INTERMEDIATE_DIR / "{}processed_*".format(get_env())))
+    combined = combine_csvs_to_dataframe(filenames)
+    combined.to_csv(FINAL_DIR / "all_processed.csv.zip", index=False)
+    for filename in filenames:
+        os.remove(filename)
+    return FINAL_DIR / "all_processed.csv.zip"
+
+
+def report_oddness():
+    df = pd.read_csv(
+        FINAL_DIR / "all_processed.csv.zip",
+        na_filter=False,
+        dtype=_processed_data_dtypes(),
+    )
+    report = (
+        df.query("result_category > 1")
+        .groupby(["test_code", "lab_id", "result_category"])
+        .count()
+        .reset_index()[["result_category", "lab_id", "test_code", "month"]]
+    )
+    denominators = (
+        df.groupby(["test_code", "lab_id"])
+        .count()
+        .reset_index()[["lab_id", "test_code", "month"]]
+    )
+    report = report.merge(
+        denominators,
+        how="inner",
+        left_on=["test_code", "lab_id"],
+        right_on=["test_code", "lab_id"],
+    )
+    report["percentage"] = report["month_x"] / report["month_y"]
+    report["result_category"] = report["result_category"].replace(ERROR_CODE_NAMES)
+    odd = report[report["percentage"] > 0.1]
+    if len(odd):
+        print("The following error codes are more than 10% of all the results:")
+        print()
+        with pd.option_context("display.max_rows", None, "display.max_columns", None):
+            print(odd[["result_category", "test_code", "lab_id", "percentage"]])
+
+
 def process_files(
     lab,
     reference_ranges,
@@ -669,10 +835,11 @@ def process_files(
         else:
             for f in filenames:
                 process_file_partial(f)
-        merged = combine_csvs(lab)
+        merged = combine_and_append_csvs(lab)
         finished = normalise_and_suppress(lab, merged, offline)
+        combined = make_final_csv()
         if finished:
-            print("Final data at {}".format(finished))
+            print("Final data at {}".format(combined))
         else:
             print("No data written")
     else:
