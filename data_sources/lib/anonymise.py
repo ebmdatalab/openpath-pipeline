@@ -9,7 +9,7 @@ import logging
 import os
 import pandas as pd
 
-from .settings import *
+from . import settings
 
 
 class StopProcessing(Exception):
@@ -30,168 +30,142 @@ def get_ref_ranges(path):
 NO_REF_RANGES = set()
 
 
-class RowAnonymiser:
-    def __init__(
-        self,
-        lab,
-        ranges,
-        drop_unwanted_data,
-        normalise_data,
-        convert_to_result,
-        log_level=None,
-    ):
-        self.orig_row = None
-        self.row = None
-        self.ranges = ranges
+# Core implementations
 
-        self.drop_unwanted_data = drop_unwanted_data
-        self.normalise_data = normalise_data
-        self.custom_convert_to_result = convert_to_result
 
-        streamhandler = logging.StreamHandler()
-        logging.basicConfig(
-            level=log_level,
-            format="%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s",
-            handlers=[streamhandler],
-        )
+def skip_old_data(row):
+    if row["month"] < settings.DATE_FLOOR:
+        raise StopProcessing()
 
-        self.logger = logging.getLogger()
 
-    def log(self, level, msg, *args):
-        msg = msg + " %s "
-        args = args + (json.dumps(self.orig_row),)
-        getattr(self.logger, level)(msg, *args)
+def standard_convert_to_result(row, ranges):
+    """Set a value of the `result_category` key in the `row` dict, based
+    on existing fields:
 
-    def log_warning(self, msg, *args):
-        return self.log("warning", msg, *args)
+    month, test_code, practice_id, age, sex, direction
 
-    def log_info(self, msg, *args):
-        return self.log("info", msg, *args)
-
-    def convert_to_result(self):
-        """Set a value of the `result_category` key, based on existing fields:
-
-        month, test_code, practice_id, age, sex, direction
-        """
-        test_code = self.row["test_code"]
-        result = self.row["test_result"]
-        sex = self.row["sex"]
-        age = self.row["age"]
-        direction = self.row["direction"]
-        if test_code in NO_REF_RANGES:
-            self.row["result_category"] = ERR_NO_REF_RANGE
-            return self.row
-        last_matched_test = None
-        found = False
-        return_code = None
-        for ref_range in self.ranges:
-            if ref_range["test"] == test_code:
-                found = True
-                if not isinstance(result, float):
-                    self.log_info("Unparseable result")
-                    return_code = ERR_UNPARSEABLE_RESULT
-                    break
-                high = low = None
-                if last_matched_test and last_matched_test != ref_range["test"]:
-                    # We can short-circuit as the rows are sorted by test
-                    self.log_info("No matching ref range found")
-                    return_code = ERR_NO_REF_RANGE
-                    break
-                last_matched_test = ref_range["test"]
-                if age >= int(float(ref_range["min_adult_age"])) and age < int(
-                    float(ref_range["max_adult_age"])
-                ):
-                    # We've found a reference range matching this row's age
-                    if sex == "M":
-                        if ref_range["low_M"] and ref_range["high_M"]:
-                            low = float(ref_range["low_M"])
-                            high = float(ref_range["high_M"])
-                    elif sex == "F":
-                        if ref_range["low_F"] and ref_range["high_F"]:
-                            low = float(ref_range["low_F"])
-                            high = float(ref_range["high_F"])
-                    else:
-                        return_code = ERR_INVALID_SEX
-                        self.log_info("Invalid sex %s", sex)
-                        break
-                    if (
-                        low != ""
-                        and high != ""
-                        and low is not None
-                        and high is not None
-                    ):
-                        if result > high:
-                            if direction == "<":
-                                self.log_warning(
-                                    "Over range %s but result <; invalid", high
-                                )
-                                return_code = ERR_INVALID_RANGE_WITH_DIRECTION
-                                break
-                            else:
-                                self.log_info("Over range %s", high)
-                                return_code = OVER_RANGE
-                                break
-                        elif result < low:
-                            if direction == ">":
-                                self.log_warning("Under range %s but >; invalid", high)
-                                return_code = ERR_INVALID_RANGE_WITH_DIRECTION
-                                break
-                            else:
-                                self.log_info("Under range %s", low)
-                                return_code = UNDER_RANGE
-                                break
-                        else:
-                            if not direction or (
-                                (direction == "<" and low == 0)
-                                or (direction == ">" and high == RANGE_CEILING)
-                            ):
-                                self.log_info("Within range %s - %s", low, high)
-                                return_code = WITHIN_RANGE
-                                break
-                            else:
-                                self.log_warning(
-                                    "Within range %s-%s but direction %s; invalid",
-                                    low,
-                                    high,
-                                    direction,
-                                )
-                                return_code = ERR_INVALID_RANGE_WITH_DIRECTION
-                                break
-
-                    else:
-                        return_code = ERR_INVALID_REF_RANGE
-                        self.log_warning(
-                            "Couldn't process ref range %s - %s", low, high
-                        )
-                        break
+    """
+    test_code = row["test_code"]
+    result = row["test_result"]
+    sex = row["sex"]
+    age = row["age"]
+    direction = row["direction"]
+    if test_code in NO_REF_RANGES:
+        row["result_category"] = settings.ERR_NO_REF_RANGE
+        return row
+    last_matched_test = None
+    found = False
+    return_code = None
+    for ref_range in ranges:
+        if ref_range["test"] == test_code:
+            found = True
+            if not isinstance(result, float):
+                log_info(row, "Unparseable result")
+                return_code = settings.ERR_UNPARSEABLE_RESULT
+                break
+            high = low = None
+            if last_matched_test and last_matched_test != ref_range["test"]:
+                # We can short-circuit as the rows are sorted by test
+                log_info(row, "No matching ref range found")
+                return_code = settings.ERR_NO_REF_RANGE
+                break
+            last_matched_test = ref_range["test"]
+            if age >= int(float(ref_range["min_adult_age"])) and age < int(
+                float(ref_range["max_adult_age"])
+            ):
+                # We've found a reference range matching this row's age
+                if sex == "M":
+                    if ref_range["low_M"] and ref_range["high_M"]:
+                        low = float(ref_range["low_M"])
+                        high = float(ref_range["high_M"])
+                elif sex == "F":
+                    if ref_range["low_F"] and ref_range["high_F"]:
+                        low = float(ref_range["low_F"])
+                        high = float(ref_range["high_F"])
                 else:
-                    return_code = ERR_DISCARDED_AGE
-        if not found:
-            NO_REF_RANGES.add(test_code)
-            self.log_info("Couldn't find ref range")
-            return_code = ERR_NO_REF_RANGE
-        self.row["result_category"] = return_code
+                    return_code = settings.ERR_INVALID_SEX
+                    log_info(row, "Invalid sex %s", sex)
+                    break
+                if low != "" and high != "" and low is not None and high is not None:
+                    if result > high:
+                        if direction == "<":
+                            log_warning(
+                                row, "Over range %s but result <; invalid", high
+                            )
+                            return_code = settings.ERR_INVALID_RANGE_WITH_DIRECTION
+                            break
+                        else:
+                            log_info(row, "Over range %s", high)
+                            return_code = settings.OVER_RANGE
+                            break
+                    elif result < low:
+                        if direction == ">":
+                            log_warning(row, "Under range %s but >; invalid", high)
+                            return_code = settings.ERR_INVALID_RANGE_WITH_DIRECTION
+                            break
+                        else:
+                            log_info(row, "Under range %s", low)
+                            return_code = settings.UNDER_RANGE
+                            break
+                    else:
+                        if not direction or (
+                            (direction == "<" and low == 0)
+                            or (direction == ">" and high == settings.RANGE_CEILING)
+                        ):
+                            log_info(row, "Within range %s - %s", low, high)
+                            return_code = settings.WITHIN_RANGE
+                            break
+                        else:
+                            log_warning(
+                                "Within range %s-%s but direction %s; invalid",
+                                low,
+                                high,
+                                direction,
+                            )
+                            return_code = settings.ERR_INVALID_RANGE_WITH_DIRECTION
+                            break
 
-    def skip_old_data(self):
-        if self.row["month"] < DATE_FLOOR:
-            raise StopProcessing()
-
-    def process_row(self):
-        try:
-            self.drop_unwanted_data(self)
-            self.normalise_data(self)
-            self.skip_old_data()
-            if self.custom_convert_to_result:
-                self.custom_convert_to_result(self)
+                else:
+                    return_code = settings.ERR_INVALID_REF_RANGE
+                    log_warning(row, "Couldn't process ref range %s - %s", low, high)
+                    break
             else:
-                self.convert_to_result()
-        except StopProcessing:
-            self.row = None
+                return_code = settings.ERR_DISCARDED_AGE
+    if not found:
+        NO_REF_RANGES.add(test_code)
+        log_info(row, "Couldn't find ref range")
+        return_code = settings.ERR_NO_REF_RANGE
+    row["result_category"] = return_code
+    return row
 
-    def feed(self, row):
-        self.orig_row = row
-        self.row = row
-        self.process_row()
+
+# Logging
+streamhandler = logging.StreamHandler()
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s",
+    handlers=[streamhandler],
+)
+
+logger = logging.getLogger()
+
+
+def log(row, level, msg, *args):
+    msg = msg + " %s "
+    args = args + (json.dumps(row),)
+    getattr(logger, level)(msg, *args)
+
+
+def log_warning(row, msg, *args):
+    return log(row, "warning", msg, *args)
+
+
+def log_info(row, msg, *args):
+    return log(row, "info", msg, *args)
+
+
+def log_error(row, msg, *args):
+    return log(row, "error", msg, *args)
 
 
 class Anonymiser:
@@ -203,47 +177,44 @@ class Anonymiser:
         drop_unwanted_data=None,
         normalise_data=None,
         convert_to_result=None,
-        log_level=logging.INFO,
     ):
         self.rows = []
         self.lab = lab
         self.row_iterator = row_iterator
         self.drop_unwanted_data = drop_unwanted_data
         self.normalise_data = normalise_data
-        self.convert_to_result = convert_to_result
-        self.normalise_data_checked = False
-        self.log_level = log_level
+        self.convert_to_result = convert_to_result or standard_convert_to_result
         if os.path.isfile(reference_ranges):
             self.ref_ranges = get_ref_ranges(reference_ranges)
         else:
             self.ref_ranges = []
 
     def feed_file(self, filename):
-        row_anonymiser = RowAnonymiser(
-            self.lab,
-            self.ref_ranges,
-            self.drop_unwanted_data,
-            self.normalise_data,
-            self.convert_to_result,
-            self.log_level,
-        )
-        for raw_row in self.row_iterator(filename):
-            row_anonymiser.feed(raw_row)
-            if row_anonymiser.row:
-                if not self.normalise_data_checked:
-                    provided_keys = set(row_anonymiser.row.keys())
-                    required_keys = set(REQUIRED_NORMALISED_KEYS)
+        for i, row in enumerate(self.row_iterator(filename)):
+            try:
+                self.drop_unwanted_data(row)
+                row = self.normalise_data(row)
+                skip_old_data(row)
+                row = self.convert_to_result(row, self.ref_ranges)
+            except StopProcessing:
+                row = None
+
+            if row:
+                if i == 0:
+                    # Check all the required keys have been provided
+                    # (in the first row only)
+                    provided_keys = set(row.keys())
+                    required_keys = set(settings.REQUIRED_NORMALISED_KEYS)
                     missing_keys = required_keys - provided_keys
                     assert not missing_keys, "Required keys missing: {}".format(
                         missing_keys
                     )
-                    self.normalise_data_checked = True
                 # Only output the columns we care about
-                subset = [row_anonymiser.row[k] for k in REQUIRED_NORMALISED_KEYS]
+                subset = [row[k] for k in settings.REQUIRED_NORMALISED_KEYS]
                 self.rows.append(subset)
 
     def to_csv(self):
-        df = pd.DataFrame(columns=REQUIRED_NORMALISED_KEYS, data=self.rows)
+        df = pd.DataFrame(columns=settings.REQUIRED_NORMALISED_KEYS, data=self.rows)
         cols = ["month", "test_code", "practice_id", "result_category"]
         df["count"] = 1
 
@@ -253,7 +224,7 @@ class Anonymiser:
             df.groupby("month").count()["test_code"].sort_values().index[-1]
         )
         converted_basename = "{}converted_{}_{}".format(
-            ENV, self.lab, date_collected.replace("/", "_")
+            settings.ENV, self.lab, date_collected.replace("/", "_")
         )
         dupes = 0
         if os.path.exists("{}.csv".format(converted_basename)):
@@ -264,5 +235,5 @@ class Anonymiser:
                 candidate_basename = "{}_{}".format(converted_basename, dupes)
             converted_basename = candidate_basename
         converted_filename = "{}.csv".format(converted_basename)
-        df[cols].to_csv(INTERMEDIATE_DIR / converted_filename, index=False)
+        df[cols].to_csv(settings.INTERMEDIATE_DIR / converted_filename, index=False)
         return converted_filename

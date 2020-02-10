@@ -39,32 +39,33 @@ def _result_dtype():
     )
 
 
-def _processed_data_dtypes():
-    return {
-        "month": _date_dtype(),
-        "test_code": str,
-        "practice_id": str,
-        "result_category": _result_dtype(),
-    }
+INTERMEDIATE_OUTPUT_DTYPES = {
+    "month": _date_dtype(),
+    "test_code": str,
+    "practice_id": str,
+    "result_category": _result_dtype(),
+}
 
 
-def combine_csvs_to_dataframe(csv_filenames):
-    """Combine CSVs (which must include columns defined in
-    _processed_data_dtypes())
+categorical = CategoricalDtype(ordered=False)
+
+FINAL_OUTPUT_DTYPES = {
+    "ccg_id": categorical,
+    "practice_id": categorical,
+    "count": int,
+    "error": int,
+    "lab_id": categorical,
+    "practice_name": categorical,
+    "result_category": _result_dtype(),
+    "test_code": categorical,
+    "total_list_size": int,
+}
+
+
+def combine_csvs_to_dataframe(csv_filenames, dtypes):
+    """Combine CSVs (which must include columns defined in `dtypes`)
 
     """
-    categorical = CategoricalDtype(ordered=False)
-    dtypes = {
-        "ccg_id": categorical,
-        "practice_id": categorical,
-        "count": int,
-        "error": int,
-        "lab_id": categorical,
-        "practice_name": categorical,
-        "result_category": int,
-        "test_code": categorical,
-        "total_list_size": int,
-    }
     unmerged = pd.read_csv(
         # Reading an empty CSV in this way allows us to define column
         # types for an empty dataframe, which we can use for `concat`
@@ -94,15 +95,14 @@ def combine_and_append_csvs(lab):
 
     # First, build a single dataframe of all the constituent monthly
     # CSVs that have not previously been processed
-    processed_data_dtypes = _processed_data_dtypes()
     unmerged_filenames = [x[1] for x in get_unmerged_filenames(lab)]
-    unmerged = combine_csvs_to_dataframe(unmerged_filenames)
+    unmerged = combine_csvs_to_dataframe(unmerged_filenames, INTERMEDIATE_OUTPUT_DTYPES)
 
     # Now open the any existing "combined" file and append our new rows to that
     try:
         existing = pd.read_csv(
             INTERMEDIATE_DIR / all_results_path,
-            dtype=processed_data_dtypes,
+            dtype=INTERMEDIATE_OUTPUT_DTYPES,
             na_filter=False,
         )
         # Test we're not re-appending rows to the same file. In theory
@@ -215,26 +215,6 @@ def _normalise_test_codes(lab, df, offline):
     return output
 
 
-def normalise_practice_codes(df, lab_code):
-    # XXX move to ND data processor?
-    if lab_code == "nd":
-        prac = pd.read_csv(
-            INTERMEDIATE_DIR / "north_devon_practice_mapping.csv", na_filter=False
-        )
-
-        df3 = df.copy()
-        df3 = df3.merge(
-            prac, left_on="practice_id", right_on="LIMS code", how="inner"
-        ).drop("LIMS code", axis=1)
-        df3 = df3.loc[pd.notnull(df3["ODS code"])]
-        df3 = df3.rename(
-            columns={"practice_id": "old_practice_id", "ODS code": "practice_id"}
-        ).drop("old_practice_id", axis=1)
-        return df3
-    else:
-        return df
-
-
 def estimate_errors(df):
     """Add a column indicating the "error" range for suppressed values
     """
@@ -323,12 +303,10 @@ def normalise_and_suppress(lab, merged, offline):
             ["month", "test_code", "practice_id", "result_category", "count"]
         ]
         aggregated["lab_id"] = lab
-        aggregated = normalise_practice_codes(aggregated, lab)
         aggregated = estimate_errors(aggregated)
         aggregated = trim_trailing_months(aggregated)
-        # get_practices()
+        # get_practices()  <-- XXX reinstate
         aggregated = trim_practices_and_add_population(aggregated)
-
         aggregated.to_csv(anonymised_results_path, index=False)
         return anonymised_results_path
     else:
@@ -337,7 +315,7 @@ def normalise_and_suppress(lab, merged, offline):
 
 def make_final_csv():
     filenames = glob.glob(str(INTERMEDIATE_DIR / "{}processed_*".format(ENV)))
-    combined = combine_csvs_to_dataframe(filenames)
+    combined = combine_csvs_to_dataframe(filenames, FINAL_OUTPUT_DTYPES)
     combined.to_csv(FINAL_DIR / "all_processed.csv.zip", index=False)
     for filename in filenames:
         os.remove(filename)
@@ -348,7 +326,7 @@ def report_oddness():
     df = pd.read_csv(
         FINAL_DIR / "all_processed.csv.zip",
         na_filter=False,
-        dtype=_processed_data_dtypes(),
+        dtype=INTERMEDIATE_OUTPUT_DTYPES,
     )
     report = (
         df.query("result_category > 1")

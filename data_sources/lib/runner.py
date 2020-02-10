@@ -35,7 +35,6 @@ def process_file(
         drop_unwanted_data=drop_unwanted_data,
         normalise_data=normalise_data,
         convert_to_result=convert_to_result,
-        log_level=log_level,
     )
     anonymiser.feed_file(filename)
     converted_filename = anonymiser.to_csv()

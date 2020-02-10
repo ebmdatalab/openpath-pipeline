@@ -2,7 +2,8 @@ import argparse
 import os
 import sys
 
-from lib.anonymise import process_files
+from lib.runner import process_files
+
 import importlib
 
 
@@ -100,6 +101,7 @@ def main():
             files = [args.single_file]
         else:
             files = config.INPUT_FILES
+            assert config.INPUT_FILES, "No input files found"
         if hasattr(config, "convert_to_result"):
             convert_to_result = config.convert_to_result
         else:

@@ -5,6 +5,7 @@ import re
 from datetime import datetime
 
 from lib.anonymise import StopProcessing
+from lib.anonymise import log_warning, log_info
 
 LAB_CODE = "cambridge"
 REFERENCE_RANGES = ""
@@ -13,7 +14,6 @@ files_path = os.path.join(
     os.environ.get("DATA_BASEDIR", "/home/filr/"), "Cambridge/*.csv"
 )
 INPUT_FILES = glob.glob(files_path)
-# assert INPUT_FILES, "No input files found at {}".format(files_path)
 
 RANGE_CEILING = 99999
 
@@ -39,25 +39,22 @@ def row_iterator(filename):
             yield row
 
 
-def drop_unwanted_data(row_anonymiser):
+def drop_unwanted_data(row):
     """Drop any rows of test data, obviously corrupted data, or otherwise
         unusable data (e.g. no information about the patient's age or the
         practice)
         """
-    if not row_anonymiser.row["CollectedDateTime"]:
-        row_anonymiser.log_warning("Empty date")
+    if not row["CollectedDateTime"]:
+        log_warning("Empty date")
         raise StopProcessing()
-    if (
-        not row_anonymiser.row["Patient Age"]
-        or row_anonymiser.row["Patient Age"] < "18"
-    ):
+    if not row["Patient Age"] or row["Patient Age"] < "18":
         raise StopProcessing()
 
 
 PRACTICE_REGEX = re.compile(r".*\(([A-Z][0-9]{5})[0-9]*\).*")
 
 
-def normalise_data(row_anonymiser):
+def normalise_data(row):
     """Convert test results to float wherever possible; extract a
     direction if required; format the date to
     %Y/%m/01.
@@ -65,14 +62,11 @@ def normalise_data(row_anonymiser):
     Additionally, rename the fields to the standardised list.
 
     """
-    row = row_anonymiser.row
-    result = row_anonymiser.row["TestResultValue"]
+    result = row["TestResultValue"]
     try:
-        order_date = datetime.strptime(
-            row_anonymiser.row["CollectedDateTime"], "%d/%m/%Y"
-        )
+        order_date = datetime.strptime(row["CollectedDateTime"], "%d/%m/%Y")
     except ValueError:
-        row_anonymiser.log_warning("Unparseable date %s", result)
+        log_warning(row, "Unparseable date %s", result)
         raise StopProcessing()
 
     row["month"] = order_date.strftime("%Y/%m/01")
@@ -96,7 +90,7 @@ def normalise_data(row_anonymiser):
     # Should probably use regex but this is faster XXX
     practice_code_match = PRACTICE_REGEX.match(row["SubmitterName"])
     if not practice_code_match:
-        row_anonymiser.log_warning("Unparseable practice %s", row["SubmitterName"])
+        log_warning(row, "Unparseable practice %s", row["SubmitterName"])
         raise StopProcessing()
 
     row["requestor_organisation_code"] = practice_code_match.groups()[0]
@@ -113,30 +107,31 @@ def normalise_data(row_anonymiser):
     mapped = {}
     for k, v in col_mapping.items():
         mapped[k] = row[v]
-    row_anonymiser.row = mapped
+    return mapped
 
 
-def convert_to_result(self):
+def convert_to_result(row, ranges):
     """Set a value of the `result_category` key, based on existing fields:
 
     month, test_code, practice_id, age, sex, direction
     """
-    result = self.row["test_result"]
+    result = row["test_result"]
     return_code = None
     if not isinstance(result, float):
-        self.log_info("Unparseable result")
-        self.row["result_category"] = ERR_UNPARSEABLE_RESULT
+        log_info(row, "Unparseable result")
+        row["result_category"] = ERR_UNPARSEABLE_RESULT
         return
 
     # ['', 'Normal', 'High Critical', 'Abnormal', 'High', 'Low', 'Low
     # Critical'] "Abnormal" appears to be reserved for tests with a
     # non-numeric result, which we mark as "unparseable" here.
-    if self.row["result_category"] in ["High", "High Critical"]:
+    if row["result_category"] in ["High", "High Critical"]:
         return_code = OVER_RANGE
-    elif self.row["result_category"] in ["Low", "Low Critical"]:
+    elif row["result_category"] in ["Low", "Low Critical"]:
         return_code = UNDER_RANGE
-    elif self.row["result_category"] == "Normal":
+    elif row["result_category"] == "Normal":
         return_code = WITHIN_RANGE
-    elif self.row["result_category"] == "":
+    elif row["result_category"] == "":
         return_code = ERR_NO_REF_RANGE  # I think....
-    self.row["result_category"] = return_code
+    row["result_category"] = return_code
+    return row
