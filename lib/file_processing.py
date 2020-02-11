@@ -25,7 +25,6 @@ def process_files(
     convert_to_result,
     multiprocessing=False,
     reimport=False,
-    offline=False,
     yes=False,
 ):
     """Process (normalise and anonymise) a list of filenames, using custom
@@ -74,7 +73,7 @@ def process_files(
             for f in filenames:
                 make_intermediate_file_partial(f)
         merged = combine_and_append_csvs(lab)
-        finished = normalise_and_suppress(lab, merged, offline)
+        finished = normalise_and_suppress(lab, merged)
         combined = make_final_csv()
         if finished:
             return "Final data at {}".format(combined)
