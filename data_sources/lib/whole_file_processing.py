@@ -1,65 +1,13 @@
-from datetime import date
-from dateutils import relativedelta
-from pandas.api.types import CategoricalDtype
-import datetime
 import glob
 import io
 import os
 import pandas as pd
 import requests
+from pandas.api.types import CategoricalDtype
+
 
 from .intermediate_file_tracking import get_unmerged_filenames, mark_as_merged
 from .settings import *
-
-
-def _date_dtype():
-    # Build categorical values for months
-    month = datetime.date(2014, 1, 1)
-    month_categories = []
-    while month <= date.today():
-        month_categories.append(month.strftime("%Y/%m/%d"))
-        month += relativedelta(months=1)
-    return CategoricalDtype(categories=month_categories, ordered=False)
-
-
-def _result_dtype():
-    return CategoricalDtype(
-        categories=[
-            WITHIN_RANGE,
-            UNDER_RANGE,
-            OVER_RANGE,
-            ERR_NO_REF_RANGE,
-            ERR_UNPARSEABLE_RESULT,
-            ERR_INVALID_SEX,
-            ERR_INVALID_RANGE_WITH_DIRECTION,
-            ERR_DISCARDED_AGE,
-            ERR_INVALID_REF_RANGE,
-        ],
-        ordered=False,
-    )
-
-
-INTERMEDIATE_OUTPUT_DTYPES = {
-    "month": _date_dtype(),
-    "test_code": str,
-    "practice_id": str,
-    "result_category": _result_dtype(),
-}
-
-
-categorical = CategoricalDtype(ordered=False)
-
-FINAL_OUTPUT_DTYPES = {
-    "ccg_id": categorical,
-    "practice_id": categorical,
-    "count": int,
-    "error": int,
-    "lab_id": categorical,
-    "practice_name": categorical,
-    "result_category": _result_dtype(),
-    "test_code": categorical,
-    "total_list_size": int,
-}
 
 
 def combine_csvs_to_dataframe(csv_filenames, dtypes):

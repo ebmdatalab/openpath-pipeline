@@ -1,9 +1,12 @@
 """Variables used in data processing
 """
-from pathlib import Path
-from dateutils import relativedelta
 from datetime import date
+from dateutils import relativedelta
+from pandas.api.types import CategoricalDtype
+from pathlib import Path
+import datetime
 import os
+
 
 # XXX not sure of the purpose of this
 RANGE_CEILING = 99999
@@ -38,7 +41,7 @@ ERROR_CODE_NAMES = {
 }
 
 # Never process dates older than this date
-DATE_FLOOR = (date.today() - relativedelta(years=5)).strftime("%Y/%m/%d")
+DATE_FLOOR = date.today() - relativedelta(years=5)
 
 # The keys that every anonymiser_config must export
 REQUIRED_NORMALISED_KEYS = ["month", "test_code", "practice_id", "result_category"]
@@ -52,3 +55,54 @@ INTERMEDIATE_DIR = Path.cwd() / "intermediate_data"
 FINAL_DIR = Path.cwd() / "final_data"
 
 ENV = os.environ.get("OPATH_ENV", "")
+
+
+def _date_dtype():
+    # Build categorical values for months
+    month = DATE_FLOOR
+    month_categories = []
+    while month <= date.today():
+        month_categories.append(month.strftime("%Y/%m/01"))
+        month += relativedelta(months=1)
+    return CategoricalDtype(categories=month_categories, ordered=False)
+
+
+categorical = CategoricalDtype(ordered=False)
+
+
+def _result_dtype():
+    return CategoricalDtype(
+        categories=[
+            WITHIN_RANGE,
+            UNDER_RANGE,
+            OVER_RANGE,
+            ERR_NO_REF_RANGE,
+            ERR_UNPARSEABLE_RESULT,
+            ERR_INVALID_SEX,
+            ERR_INVALID_RANGE_WITH_DIRECTION,
+            ERR_DISCARDED_AGE,
+            ERR_INVALID_REF_RANGE,
+        ],
+        ordered=False,
+    )
+
+
+INTERMEDIATE_OUTPUT_DTYPES = {
+    "month": _date_dtype(),
+    "test_code": str,
+    "practice_id": str,
+    "result_category": _result_dtype(),
+}
+
+
+FINAL_OUTPUT_DTYPES = {
+    "ccg_id": categorical,
+    "practice_id": categorical,
+    "count": int,
+    "error": int,
+    "lab_id": categorical,
+    "practice_name": categorical,
+    "result_category": _result_dtype(),
+    "test_code": categorical,
+    "total_list_size": int,
+}
