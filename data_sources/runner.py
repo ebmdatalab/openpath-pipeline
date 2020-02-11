@@ -72,6 +72,11 @@ def main():
         action="store_true",
     )
     parser.add_argument(
+        "--yes",
+        help="Avoid prompts by answering 'yes' to any questions",
+        action="store_true",
+    )
+    parser.add_argument(
         "--offline",
         help="Run everything offline (don't fetch latest data)",
         action="store_true",
@@ -109,6 +114,7 @@ def main():
             multiprocessing=multiprocessing,
             reimport=args.reimport,
             offline=args.offline,
+            yes=args.yes,
         )
         print(result)
 

@@ -26,6 +26,7 @@ def process_files(
     multiprocessing=False,
     reimport=False,
     offline=False,
+    yes=False,
 ):
     """Process (normalise and anonymise) a list of filenames, using custom
     functions that are passed in from per-lab configurations.
@@ -34,8 +35,14 @@ def process_files(
 
     """
     if reimport:
-        really_reset = input("Really reset all data? (y/n)")
-        if really_reset == "y":
+        do_reset = False
+        if yes:
+            do_reset = True
+        else:
+            really_reset = input("Really reset all data? (y/n)")
+            if really_reset == "y":
+                do_reset = True
+        if do_reset:
             reset_lab(lab)
             # Delete everything, including the merged intermediate
             # files that are a running record of what's been done so
