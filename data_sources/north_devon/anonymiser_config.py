@@ -5,7 +5,7 @@ from openpyxl import load_workbook
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-from lib.anonymise import StopProcessing
+from lib.intermediate_file_processing import StopProcessing
 from lib.logger import log_error
 
 LAB_CODE = "nd"

@@ -5,7 +5,7 @@ import csv
 import codecs
 from datetime import datetime
 
-from lib.anonymise import StopProcessing
+from lib.intermediate_file_processing import StopProcessing
 from lib.logger import log_info, log_warning
 
 LAB_CODE = "plymouth"

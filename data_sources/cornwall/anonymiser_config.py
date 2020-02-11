@@ -7,7 +7,7 @@ import codecs
 from datetime import datetime
 import re
 
-from lib.anonymise import StopProcessing
+from lib.intermediate_file_processing import StopProcessing
 
 LAB_CODE = "cornwall"
 REFERENCE_RANGES = "cornwall_ref_ranges.csv"

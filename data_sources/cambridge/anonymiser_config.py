@@ -4,7 +4,7 @@ import csv
 import re
 from datetime import datetime
 
-from lib.anonymise import StopProcessing
+from lib.intermediate_file_processing import StopProcessing
 from lib.logger import log_warning, log_info
 
 LAB_CODE = "cambridge"

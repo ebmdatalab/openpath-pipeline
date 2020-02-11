@@ -13,7 +13,7 @@ from .intermediate_file_tracking import (
     get_processed_filenames,
 )
 
-from .anonymise import make_intermediate_file
+from .intermediate_file_processing import make_intermediate_file
 
 from .settings import *
 
