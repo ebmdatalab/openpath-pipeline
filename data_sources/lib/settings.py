@@ -10,6 +10,19 @@ from pandas.api.types import CategoricalDtype
 
 LOG_LEVEL = logging.DEBUG
 
+
+# In the spreadsheet that Helen currently manually maintains, which
+# columns provide old-test-code-to-new mappings for each lab?
+
+# The spreadsheet is here: https://docs.google.com/spreadsheets/d/e/2PACX-1vSeLPEW4rTy_hCktuAXEsXtivcdREDuU7jKfXlvJ7CTEBycrxWyunBWdLgGe7Pm1A/pub?gid=241568377&single=true&output=csv
+TEST_CODE_MAPPINGS = {
+    "nd": ["nd_testcode"],
+    "cornwall": ["cornwall_testcode"],
+    "plymouth": ["plym_testcode", "other_plym_codes"],
+    "cambridge": [],
+}
+
+
 # XXX not sure of the purpose of this
 RANGE_CEILING = 99999
 

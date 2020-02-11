@@ -2,7 +2,7 @@ import argparse
 import os
 import sys
 
-from lib.runner import process_files
+from lib.file_processing import process_files
 
 import importlib
 

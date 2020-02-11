@@ -1,43 +1,18 @@
 from functools import partial
 from multiprocessing import Pool
 import glob
+import os
 
 from .whole_file_processing import (
     combine_and_append_csvs,
     normalise_and_suppress,
     make_final_csv,
 )
-from .intermediate_file_tracking import (
-    mark_as_processed,
-    reset_lab,
-    get_processed_filenames,
-)
+from .intermediate_file_tracking import reset_lab, get_processed_filenames
 
 from .intermediate_file_processing import make_intermediate_file
 
-from .settings import *
-
-
-def process_file(
-    lab,
-    reference_ranges,
-    log_level,
-    row_iterator,
-    drop_unwanted_data,
-    normalise_data,
-    convert_to_result,
-    filename,
-):
-    converted_filename = make_intermediate_file(
-        filename,
-        lab,
-        reference_ranges,
-        row_iterator,
-        drop_unwanted_data,
-        normalise_data,
-        convert_to_result,
-    )
-    mark_as_processed(lab, filename, converted_filename)
+from . import settings
 
 
 def process_files(
@@ -53,12 +28,21 @@ def process_files(
     reimport=False,
     offline=False,
 ):
+    """Process (normalise and anonymise) a list of filenames, using custom
+    functions that are passed in from per-lab configurations.
+
+    Any filenames already processed are skipped.
+
+    """
     if reimport:
         really_reset = input("Really reset all data? (y/n)")
         if really_reset == "y":
             reset_lab(lab)
+            # Delete everything, including the merged intermediate
+            # files that are a running record of what's been done so
+            # far
             target_filenames = glob.glob(
-                str(INTERMEDIATE_DIR / "{}*_{}*.csv".format(ENV, lab))
+                str(settings.INTERMEDIATE_DIR / "{}*_{}*.csv".format(settings.ENV, lab))
             )
             for target_filename in target_filenames:
                 os.remove(target_filename)
@@ -69,7 +53,7 @@ def process_files(
     filenames = set(filenames) - set(seen_filenames)
     if filenames:
         process_file_partial = partial(
-            process_file,
+            make_intermediate_file,
             lab,
             reference_ranges,
             log_level,
@@ -88,8 +72,8 @@ def process_files(
         finished = normalise_and_suppress(lab, merged, offline)
         combined = make_final_csv()
         if finished:
-            print("Final data at {}".format(combined))
+            return "Final data at {}".format(combined)
         else:
-            print("No data written")
+            return "No data written"
     else:
-        print("Nothing to do")
+        return "Nothing to do"

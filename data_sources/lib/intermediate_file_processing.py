@@ -9,6 +9,8 @@ import os
 import tempfile
 
 from . import settings
+from .intermediate_file_tracking import mark_as_processed
+
 from .logger import log_info, log_warning
 
 
@@ -20,17 +22,25 @@ class StopProcessing(Exception):
 def get_ref_ranges(path):
     """Load a CSV of reference ranges into a list of dicts
     """
-    # columns must be ["test", "min_adult_age", "max_adult_age", "low_F", "low_M", "high_F", "high_M"]
+    required_cols = [
+        "test",
+        "min_adult_age",
+        "max_adult_age",
+        "low_F",
+        "low_M",
+        "high_F",
+        "high_M",
+    ]
     with open(path, newline="", encoding="ISO-8859-1") as f:
         lines = sorted(list(csv.DictReader(f)), key=lambda x: x["test"])
+    assert sorted(lines[0].keys()) == sorted(
+        required_cols
+    ), "CSV at {} must define columns {}".format(path, required_cols)
     return lines
 
 
 # Cache the fact any reference ranges are missing
 NO_REF_RANGES = set()
-
-
-# Core implementations
 
 
 def skip_old_data(row):
@@ -39,10 +49,27 @@ def skip_old_data(row):
 
 
 def standard_convert_to_result(row, ranges):
-    """Set a value of the `result_category` key in the `row` dict, based
-    on existing fields:
+    """Given a row and a list of reference ranges, set a value of the
+    `result_category` key in the `row` dict, and return that row
 
-    month, test_code, practice_id, age, sex, direction
+    A row is a dict with these keys:
+
+        [month, test_code, practice_id, age, sex, direction].
+
+    Every data source is expected to (and by this point, already
+    validated to) return these keys.
+
+    A list of reference ranges is a list where each element is a dict
+    with the keys
+
+        ["test", "min_adult_age", "max_adult_age", "low_F", "low_M", "high_F", "high_M"]
+
+    This function uses these two variables together to work out the
+    result_category. It turns out several data sources don't come with
+    reference ranges, but do supply a within/outside range
+    indicator. In such cases, this function is replaced by something
+    much simpler, which just converts their indicator to our category
+    codes.
 
     """
     test_code = row["test_code"]
@@ -148,6 +175,19 @@ def make_intermediate_file(
     normalise_data,
     convert_to_result=None,
 ):
+    """Given a filename, lab id, and reference ranges, create an
+    intermediate file which is a normalised version of the original
+    input file.
+
+    'Normalised' means a version with minimum columns required for
+    processing, practice ids converted to ODS codes, bad and old data
+    dropped, months converted to YYYY/MM/DD, and all columns named in
+    a consistent manner.
+
+    Intermediate files are combined and anonymised later in the
+    pipeline.
+
+    """
     outfile = tempfile.NamedTemporaryFile(mode="w", delete=False)
     convert_to_result = convert_to_result or standard_convert_to_result
     if os.path.isfile(reference_ranges):
@@ -158,6 +198,8 @@ def make_intermediate_file(
     writer = csv.writer(outfile)
     first_dates = Counter()
     validated = False
+
+    # Execute a range of operations, per-row
     for i, row in enumerate(row_iterator(filename)):
         try:
             drop_unwanted_data(row)
@@ -186,6 +228,8 @@ def make_intermediate_file(
             subset = [row[k] for k in settings.REQUIRED_NORMALISED_KEYS]
             writer.writerow(subset)
     outfile.flush()
+
+    # Compute an unused filename that reflects its contents to some degree
     most_common_date = first_dates.most_common(1)[0][0]
     converted_basename = "{}converted_{}_{}".format(
         settings.ENV, lab, most_common_date.replace("/", "_")
@@ -201,5 +245,7 @@ def make_intermediate_file(
             candidate_basename = "{}_{}".format(converted_basename, dupes)
         converted_basename = candidate_basename
     converted_filename = "{}.csv".format(converted_basename)
-    os.rename(outfile.name, settings.INTERMEDIATE_DIR / converted_filename)
-    return str(settings.INTERMEDIATE_DIR / converted_filename)
+    converted_filepath = str(settings.INTERMEDIATE_DIR / converted_filename)
+    os.rename(outfile.name, converted_filepath)
+    mark_as_processed(lab, filename, converted_filepath)
+    return converted_filepath

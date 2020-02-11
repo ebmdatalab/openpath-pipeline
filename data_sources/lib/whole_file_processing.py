@@ -1,3 +1,9 @@
+"""Functions which combine new intermediate files with
+previously-combined intermediate files, and then do things which
+should happen the whole dataset, like normalising test names and
+suppressing low numbers
+
+"""
 import glob
 import io
 import os
@@ -7,7 +13,7 @@ from pandas.api.types import CategoricalDtype
 
 
 from .intermediate_file_tracking import get_unmerged_filenames, mark_as_merged
-from .settings import *
+from . import settings
 
 
 def combine_csvs_to_dataframe(csv_filenames, dtypes):
@@ -26,7 +32,9 @@ def combine_csvs_to_dataframe(csv_filenames, dtypes):
         unmerged = pd.concat(
             [
                 unmerged,
-                pd.read_csv(INTERMEDIATE_DIR / filename, na_filter=False, dtype=dtypes),
+                pd.read_csv(
+                    settings.INTERMEDIATE_DIR / filename, na_filter=False, dtype=dtypes
+                ),
             ],
             sort=False,
         )
@@ -39,25 +47,28 @@ def combine_and_append_csvs(lab):
     provide some assurance data hasn't been appended twice.
 
     """
-    all_results_path = "{}combined_{}.csv".format(ENV, lab)
+    all_results_path = "{}combined_{}.csv".format(settings.ENV, lab)
 
     # First, build a single dataframe of all the constituent monthly
     # CSVs that have not previously been processed
     unmerged_filenames = [x[1] for x in get_unmerged_filenames(lab)]
-    unmerged = combine_csvs_to_dataframe(unmerged_filenames, INTERMEDIATE_OUTPUT_DTYPES)
+    unmerged = combine_csvs_to_dataframe(
+        unmerged_filenames, settings.INTERMEDIATE_OUTPUT_DTYPES
+    )
 
-    # Now open the any existing "combined" file and append our new rows to that
+    # Now open the existing "combined" file (if it exists), and append
+    # our new rows to that
     try:
         existing = pd.read_csv(
-            INTERMEDIATE_DIR / all_results_path,
-            dtype=INTERMEDIATE_OUTPUT_DTYPES,
+            settings.INTERMEDIATE_DIR / all_results_path,
+            dtype=settings.INTERMEDIATE_OUTPUT_DTYPES,
             na_filter=False,
         )
         # Test we're not re-appending rows to the same file. In theory
         # this shouldn't happen as we track imported filenames, but
-        # until that code is tested and known to be rebust: has the
-        # number of tests in the previously-most-recent month stayed
-        # within 20% of previous value?
+        # belt-and-braces: has the number of tests in the
+        # previously-most-recent month stayed within 20% of previous
+        # value?
         assert (
             len(existing[pd.isnull(existing["month"])]) == 0
         ), "There are `nan` values for month"
@@ -80,26 +91,20 @@ def combine_and_append_csvs(lab):
         # The first time we've made a merged file
         merged = unmerged
     if unmerged_filenames:
-        merged.to_csv(INTERMEDIATE_DIR / all_results_path, index=False)
+        # Don't bother rewriting the CSV if it hasn't changed
+        merged.to_csv(settings.INTERMEDIATE_DIR / all_results_path, index=False)
     # Clean up unmerged files
     for filename in unmerged_filenames:
         mark_as_merged(lab, filename)
-        os.remove(INTERMEDIATE_DIR / filename)
-    # Thes columns can't be categorical up-front as we don't know what
-    # practice ids or test codes are going to be present until thie end
+        os.remove(settings.INTERMEDIATE_DIR / filename)
+    # These columns can't be `categorical` up-front as we don't know
+    # what practice ids or test codes are going to be present until
+    # all the intermediate files have been combined
     merged["practice_id"] = merged["practice_id"].astype(
         CategoricalDtype(ordered=False)
     )
     merged["test_code"] = merged["test_code"].astype(CategoricalDtype(ordered=False))
     return merged
-
-
-CODE_MAPPINGS = {
-    "nd": ["nd_testcode"],
-    "cornwall": ["cornwall_testcode"],
-    "plymouth": ["plym_testcode", "other_plym_codes"],
-    "cambridge": [],
-}
 
 
 def _get_test_codes(lab, offline):
@@ -111,7 +116,7 @@ def _get_test_codes(lab, offline):
         uri = "test_codes.csv"
     else:
         uri = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeLPEW4rTy_hCktuAXEsXtivcdREDuU7jKfXlvJ7CTEBycrxWyunBWdLgGe7Pm1A/pub?gid=241568377&single=true&output=csv"
-    columns = CODE_MAPPINGS[lab] + ["datalab_testcode"]
+    columns = settings.TEST_CODE_MAPPINGS[lab] + ["datalab_testcode"]
     df = pd.read_csv(
         uri, na_filter=False, usecols=columns + ["show_in_app?", "testname"]
     )
@@ -120,7 +125,7 @@ def _get_test_codes(lab, offline):
     df = df[df["show_in_app?"] == True]
 
     # Drop any mappings that are actually the same as the datalab one
-    for colname in CODE_MAPPINGS[lab]:
+    for colname in settings.TEST_CODE_MAPPINGS[lab]:
         df.loc[df[colname] == df["datalab_testcode"], colname] = "_DONTJOIN_"
 
     dupe_codes = df.datalab_testcode[df.datalab_testcode.duplicated()]
@@ -152,7 +157,7 @@ def _normalise_test_codes(lab, df, offline):
     # normalised `datalab_testcode`. In addition, be sure also to
     # match on any codes in the lab data which are exactly the same as
     # the `datalab_testcode`.
-    for colname in CODE_MAPPINGS[lab] + ["datalab_testcode"]:
+    for colname in settings.TEST_CODE_MAPPINGS[lab] + ["datalab_testcode"]:
         result = df.merge(
             test_code_mapping, how="inner", left_on="test_code", right_on=colname
         )
@@ -183,12 +188,12 @@ def trim_trailing_months(df):
 
 
 def get_practices():
-    """Make a CSV of "standard" GP practices and list size data.
+    """Make a CSV of "standard" GP practices and list size data, taken from OpenPrescribing
     """
     practices_url = (
         "https://openprescribing.net/api/1.0/org_code/?org_type=practice&format=csv"
     )
-    target_path = FINAL_DIR / "practice_codes.csv"
+    target_path = settings.FINAL_DIR / "practice_codes.csv"
     # For some reason delegating the URL-grabbing to pandas results in a 403
     df = pd.read_csv(io.StringIO(requests.get(practices_url).text), na_filter=False)
     df = df[df["setting"] == 4]
@@ -204,13 +209,13 @@ def get_practices():
     df.to_csv(target_path, index=False)
 
 
-def trim_practices_and_add_population(df):
-    """Remove practices unlikely to be normal GP ones
+def add_practice_metadata(df):
+    """Joins the data on current practice codes. This has the effect of
+    both providing metadata (CCG membership, list size), *and*
+    removing odd or otherwise unmappable practices from the data.
+
     """
-    # 1. Join on practices table
-    # 2. Remove practices with fewer than 1000 total tests
-    # 3. Remove practices that are missing population data
-    practices = pd.read_csv(FINAL_DIR / "practice_codes.csv", na_filter=False)
+    practices = pd.read_csv(settings.FINAL_DIR / "practice_codes.csv", na_filter=False)
     practices["month"] = pd.to_datetime(practices["month"])
     df["month"] = pd.to_datetime(df["month"])
     return df.merge(
@@ -228,7 +233,9 @@ def normalise_and_suppress(lab, merged, offline):
     May); (b) do low-number suppression against the entire dataset
 
     """
-    anonymised_results_path = INTERMEDIATE_DIR / "{}processed_{}.csv".format(ENV, lab)
+    anonymised_results_path = settings.INTERMEDIATE_DIR / "{}processed_{}.csv".format(
+        settings.ENV, lab
+    )
     normalised = _normalise_test_codes(lab, merged, offline)
     # We have to convert these columns to categories *after* all the
     # constituent files have been loaded, as only then are all the
@@ -246,15 +253,16 @@ def normalise_and_suppress(lab, merged, offline):
             .count()
             .dropna()
         ).reset_index()
-        aggregated.loc[aggregated["count"] < SUPPRESS_UNDER, "count"] = SUPPRESS_STRING
+        aggregated.loc[
+            aggregated["count"] < settings.SUPPRESS_UNDER, "count"
+        ] = settings.SUPPRESS_STRING
         aggregated = aggregated[
             ["month", "test_code", "practice_id", "result_category", "count"]
         ]
         aggregated["lab_id"] = lab
         aggregated = estimate_errors(aggregated)
         aggregated = trim_trailing_months(aggregated)
-        # get_practices()  <-- XXX reinstate
-        aggregated = trim_practices_and_add_population(aggregated)
+        aggregated = add_practice_metadata(aggregated)
         aggregated.to_csv(anonymised_results_path, index=False)
         return anonymised_results_path
     else:
@@ -262,19 +270,21 @@ def normalise_and_suppress(lab, merged, offline):
 
 
 def make_final_csv():
-    filenames = glob.glob(str(INTERMEDIATE_DIR / "{}processed_*".format(ENV)))
-    combined = combine_csvs_to_dataframe(filenames, FINAL_OUTPUT_DTYPES)
-    combined.to_csv(FINAL_DIR / "all_processed.csv.zip", index=False)
+    filenames = glob.glob(
+        str(settings.INTERMEDIATE_DIR / "{}processed_*".format(settings.ENV))
+    )
+    combined = combine_csvs_to_dataframe(filenames, settings.FINAL_OUTPUT_DTYPES)
+    combined.to_csv(settings.FINAL_DIR / "all_processed.csv.zip", index=False)
     for filename in filenames:
         os.remove(filename)
-    return FINAL_DIR / "all_processed.csv.zip"
+    return settings.FINAL_DIR / "all_processed.csv.zip"
 
 
 def report_oddness():
     df = pd.read_csv(
-        FINAL_DIR / "all_processed.csv.zip",
+        settings.FINAL_DIR / "all_processed.csv.zip",
         na_filter=False,
-        dtype=INTERMEDIATE_OUTPUT_DTYPES,
+        dtype=settings.INTERMEDIATE_OUTPUT_DTYPES,
     )
     report = (
         df.query("result_category > 1")
@@ -294,7 +304,9 @@ def report_oddness():
         right_on=["test_code", "lab_id"],
     )
     report["percentage"] = report["month_x"] / report["month_y"]
-    report["result_category"] = report["result_category"].replace(ERROR_CODE_NAMES)
+    report["result_category"] = report["result_category"].replace(
+        settings.ERROR_CODE_NAMES
+    )
     odd = report[report["percentage"] > 0.1]
     if len(odd):
         print("The following error codes are more than 10% of all the results:")
