@@ -6,7 +6,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from lib.anonymise import StopProcessing
-from lib.anonymise import log_error
+from lib.logger import log_error
 
 LAB_CODE = "nd"
 REFERENCE_RANGES = "north_devon_reference_ranges.csv"

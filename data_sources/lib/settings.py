@@ -1,12 +1,14 @@
 """Variables used in data processing
 """
 from datetime import date
-from dateutils import relativedelta
-from pandas.api.types import CategoricalDtype
 from pathlib import Path
-import datetime
+import logging
 import os
 
+from dateutils import relativedelta
+from pandas.api.types import CategoricalDtype
+
+LOG_LEVEL = logging.DEBUG
 
 # XXX not sure of the purpose of this
 RANGE_CEILING = 99999

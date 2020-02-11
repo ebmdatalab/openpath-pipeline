@@ -6,7 +6,7 @@ import codecs
 from datetime import datetime
 
 from lib.anonymise import StopProcessing
-from lib.anonymise import log_info, log_warning
+from lib.logger import log_info, log_warning
 
 LAB_CODE = "plymouth"
 REFERENCE_RANGES = ""
