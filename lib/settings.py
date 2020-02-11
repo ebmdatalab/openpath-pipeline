@@ -8,7 +8,7 @@ import os
 from dateutils import relativedelta
 from pandas.api.types import CategoricalDtype
 
-LOG_LEVEL = os.environ.get("OPATH_LOG_LEVEL", logging.WARNING)
+LOG_LEVEL = logging.getLevelName(os.environ.get("OPATH_LOG_LEVEL", "WARNING"))
 
 
 # In the spreadsheet that Helen currently manually maintains, indicate
