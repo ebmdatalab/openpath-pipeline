@@ -13,7 +13,7 @@ from .intermediate_file_tracking import (
     get_processed_filenames,
 )
 
-from .anonymise import Anonymiser
+from .anonymise import make_intermediate_file
 
 from .settings import *
 
@@ -28,15 +28,15 @@ def process_file(
     convert_to_result,
     filename,
 ):
-    anonymiser = Anonymiser(
+    converted_filename = make_intermediate_file(
+        filename,
         lab,
-        reference_ranges=reference_ranges,
-        row_iterator=row_iterator,
-        drop_unwanted_data=drop_unwanted_data,
-        normalise_data=normalise_data,
-        convert_to_result=convert_to_result,
+        reference_ranges,
+        row_iterator,
+        drop_unwanted_data,
+        normalise_data,
+        convert_to_result,
     )
-    converted_filename = anonymiser.work(filename)
     mark_as_processed(lab, filename, converted_filename)
 
 

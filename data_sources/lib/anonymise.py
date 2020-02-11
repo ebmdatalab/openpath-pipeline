@@ -139,78 +139,67 @@ def standard_convert_to_result(row, ranges):
     return row
 
 
-class Anonymiser:
-    def __init__(
-        self,
-        lab,
-        reference_ranges,
-        row_iterator=None,
-        drop_unwanted_data=None,
-        normalise_data=None,
-        convert_to_result=None,
-    ):
-        self.outfile = tempfile.NamedTemporaryFile(mode="w", delete=False)
-        self.lab = lab
-        self.row_iterator = row_iterator
-        self.drop_unwanted_data = drop_unwanted_data
-        self.normalise_data = normalise_data
-        self.convert_to_result = convert_to_result or standard_convert_to_result
-        if os.path.isfile(reference_ranges):
-            self.ref_ranges = get_ref_ranges(reference_ranges)
-        else:
-            self.ref_ranges = []
+def make_intermediate_file(
+    filename,
+    lab,
+    reference_ranges,
+    row_iterator,
+    drop_unwanted_data,
+    normalise_data,
+    convert_to_result=None,
+):
+    outfile = tempfile.NamedTemporaryFile(mode="w", delete=False)
+    convert_to_result = convert_to_result or standard_convert_to_result
+    if os.path.isfile(reference_ranges):
+        ref_ranges = get_ref_ranges(reference_ranges)
+    else:
+        ref_ranges = []
 
-    def feed_file(self, filename):
-        writer = csv.writer(self.outfile)
-        first_dates = Counter()
-        validated = False
-        for i, row in enumerate(self.row_iterator(filename)):
-            try:
-                self.drop_unwanted_data(row)
-                row = self.normalise_data(row)
-                skip_old_data(row)
-                row = self.convert_to_result(row, self.ref_ranges)
-            except StopProcessing:
-                row = None
+    writer = csv.writer(outfile)
+    first_dates = Counter()
+    validated = False
+    for i, row in enumerate(row_iterator(filename)):
+        try:
+            drop_unwanted_data(row)
+            row = normalise_data(row)
+            skip_old_data(row)
+            row = convert_to_result(row, ref_ranges)
+        except StopProcessing:
+            row = None
 
-            if row:
-                if not validated:
-                    writer.writerow(settings.REQUIRED_NORMALISED_KEYS)
-                    # Check all the required keys have been provided
-                    # (in the first row only)
-                    provided_keys = set(row.keys())
-                    required_keys = set(settings.REQUIRED_NORMALISED_KEYS)
-                    missing_keys = required_keys - provided_keys
-                    assert not missing_keys, "Required keys missing: {}".format(
-                        missing_keys
-                    )
-                    validated = True
-                if i < 1000:
-                    # find most common date in this file, for naming
-                    first_dates[row["month"]] += 1
-                # Only output the columns we care about
-                subset = [row[k] for k in settings.REQUIRED_NORMALISED_KEYS]
-                writer.writerow(subset)
-        self.outfile.flush()
-        return first_dates.most_common(1)[0][0]
-
-    def work(self, filename):
-        most_common_date = self.feed_file(filename)
-        converted_basename = "{}converted_{}_{}".format(
-            settings.ENV, self.lab, most_common_date.replace("/", "_")
-        )
-        dupes = 0
-        if os.path.exists(
-            settings.INTERMEDIATE_DIR / "{}.csv".format(converted_basename)
+        if row:
+            if not validated:
+                writer.writerow(settings.REQUIRED_NORMALISED_KEYS)
+                # Check all the required keys have been provided
+                # (in the first row only)
+                provided_keys = set(row.keys())
+                required_keys = set(settings.REQUIRED_NORMALISED_KEYS)
+                missing_keys = required_keys - provided_keys
+                assert not missing_keys, "Required keys missing: {}".format(
+                    missing_keys
+                )
+                validated = True
+            if i < 1000:
+                # find most common date in this file, for naming
+                first_dates[row["month"]] += 1
+            # Only output the columns we care about
+            subset = [row[k] for k in settings.REQUIRED_NORMALISED_KEYS]
+            writer.writerow(subset)
+    outfile.flush()
+    most_common_date = first_dates.most_common(1)[0][0]
+    converted_basename = "{}converted_{}_{}".format(
+        settings.ENV, lab, most_common_date.replace("/", "_")
+    )
+    dupes = 0
+    if os.path.exists(settings.INTERMEDIATE_DIR / "{}.csv".format(converted_basename)):
+        dupes += 1
+        candidate_basename = "{}_{}".format(converted_basename, dupes)
+        while os.path.exists(
+            settings.INTERMEDIATE_DIR / "{}.csv".format(candidate_basename)
         ):
             dupes += 1
             candidate_basename = "{}_{}".format(converted_basename, dupes)
-            while os.path.exists(
-                settings.INTERMEDIATE_DIR / "{}.csv".format(candidate_basename)
-            ):
-                dupes += 1
-                candidate_basename = "{}_{}".format(converted_basename, dupes)
-            converted_basename = candidate_basename
-        converted_filename = "{}.csv".format(converted_basename)
-        os.rename(self.outfile.name, settings.INTERMEDIATE_DIR / converted_filename)
-        return str(settings.INTERMEDIATE_DIR / converted_filename)
+        converted_basename = candidate_basename
+    converted_filename = "{}.csv".format(converted_basename)
+    os.rename(outfile.name, settings.INTERMEDIATE_DIR / converted_filename)
+    return str(settings.INTERMEDIATE_DIR / converted_filename)
