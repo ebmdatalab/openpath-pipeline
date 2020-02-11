@@ -13,7 +13,7 @@ except NameError:
     ModuleNotFoundError = ImportError
 
 
-def list_labs():
+def get_lab_configs():
     configs = {}
     for folder in os.listdir("."):
         if os.path.isdir(folder) and not folder.startswith("."):
@@ -56,17 +56,10 @@ def main():
     parser = argparse.ArgumentParser(
         description="Generate suitably anonymised subset of raw input data"
     )
-    labs = list_labs()
+    labs = get_lab_configs()
     choices = list(labs.keys()) + ["all"]
     parser.add_argument("lab", help="lab", choices=choices)
     parser.add_argument("--single-file", help="Process single input file")
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="count",
-        default=0,
-        help="Logging verbosity; -v is ERROR, -vv WARNING, etc",
-    )
     parser.add_argument(
         "--no-multiprocessing", help="Use multiprocessing", action="store_true"
     )
@@ -85,7 +78,6 @@ def main():
     )
     args = parser.parse_args()
     multiprocessing = not args.no_multiprocessing
-    log_level = 50 - (args.verbose * 10)
     if args.test:
         os.environ["OPATH_ENV"] = "test_"
     else:
@@ -106,10 +98,9 @@ def main():
             convert_to_result = config.convert_to_result
         else:
             convert_to_result = None
-        process_files(
+        result = process_files(
             config.LAB_CODE,
             os.path.join(os.path.dirname(config.__file__), config.REFERENCE_RANGES),
-            log_level,
             files,
             config.row_iterator,
             config.drop_unwanted_data,
@@ -119,6 +110,7 @@ def main():
             reimport=args.reimport,
             offline=args.offline,
         )
+        print(result)
 
 
 if __name__ == "__main__":

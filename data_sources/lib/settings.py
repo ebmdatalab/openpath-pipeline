@@ -8,13 +8,13 @@ import os
 from dateutils import relativedelta
 from pandas.api.types import CategoricalDtype
 
-LOG_LEVEL = logging.DEBUG
+LOG_LEVEL = os.environ.get("OPATH_LOG_LEVEL", logging.WARNING)
 
 
-# In the spreadsheet that Helen currently manually maintains, which
-# columns provide old-test-code-to-new mappings for each lab?
-
-# The spreadsheet is here: https://docs.google.com/spreadsheets/d/e/2PACX-1vSeLPEW4rTy_hCktuAXEsXtivcdREDuU7jKfXlvJ7CTEBycrxWyunBWdLgGe7Pm1A/pub?gid=241568377&single=true&output=csv
+# In the spreadsheet that Helen currently manually maintains, indicate
+# which columns provide old-test-code-to-new mappings for each lab.
+# The spreadsheet is here:
+# https://docs.google.com/spreadsheets/d/e/2PACX-1vSeLPEW4rTy_hCktuAXEsXtivcdREDuU7jKfXlvJ7CTEBycrxWyunBWdLgGe7Pm1A/pub?gid=241568377&single=true&output=csv
 TEST_CODE_MAPPINGS = {
     "nd": ["nd_testcode"],
     "cornwall": ["cornwall_testcode"],

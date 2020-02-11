@@ -18,7 +18,6 @@ from . import settings
 def process_files(
     lab,
     reference_ranges,
-    log_level,
     filenames,
     row_iterator,
     drop_unwanted_data,
@@ -52,22 +51,21 @@ def process_files(
     seen_filenames = get_processed_filenames(lab)
     filenames = set(filenames) - set(seen_filenames)
     if filenames:
-        process_file_partial = partial(
+        make_intermediate_file_partial = partial(
             make_intermediate_file,
             lab,
             reference_ranges,
-            log_level,
             row_iterator,
             drop_unwanted_data,
             normalise_data,
-            convert_to_result,
+            convert_to_result=convert_to_result,
         )
         if multiprocessing:
             with Pool() as pool:
-                pool.map(process_file_partial, filenames)
+                pool.map(make_intermediate_file_partial, filenames)
         else:
             for f in filenames:
-                process_file_partial(f)
+                make_intermediate_file_partial(f)
         merged = combine_and_append_csvs(lab)
         finished = normalise_and_suppress(lab, merged, offline)
         combined = make_final_csv()

@@ -167,12 +167,12 @@ def standard_convert_to_result(row, ranges):
 
 
 def make_intermediate_file(
-    filename,
     lab,
     reference_ranges,
     row_iterator,
     drop_unwanted_data,
     normalise_data,
+    filename,
     convert_to_result=None,
 ):
     """Given a filename, lab id, and reference ranges, create an
