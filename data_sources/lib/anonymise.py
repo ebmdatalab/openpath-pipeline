@@ -2,12 +2,14 @@
 
 Currently only works for XLS formatted inputs without column headers
 """
+from collections import Counter
 from functools import lru_cache
 import csv
 import json
 import logging
 import os
 import pandas as pd
+import tempfile
 
 from . import settings
 
@@ -178,7 +180,7 @@ class Anonymiser:
         normalise_data=None,
         convert_to_result=None,
     ):
-        self.rows = []
+        self.outfile = tempfile.NamedTemporaryFile(mode="w", delete=False)
         self.lab = lab
         self.row_iterator = row_iterator
         self.drop_unwanted_data = drop_unwanted_data
@@ -190,6 +192,9 @@ class Anonymiser:
             self.ref_ranges = []
 
     def feed_file(self, filename):
+        writer = csv.writer(self.outfile)
+        first_dates = Counter()
+        validated = False
         for i, row in enumerate(self.row_iterator(filename)):
             try:
                 self.drop_unwanted_data(row)
@@ -200,7 +205,8 @@ class Anonymiser:
                 row = None
 
             if row:
-                if i == 0:
+                if not validated:
+                    writer.writerow(settings.REQUIRED_NORMALISED_KEYS)
                     # Check all the required keys have been provided
                     # (in the first row only)
                     provided_keys = set(row.keys())
@@ -209,31 +215,33 @@ class Anonymiser:
                     assert not missing_keys, "Required keys missing: {}".format(
                         missing_keys
                     )
+                    validated = True
+                if i < 1000:
+                    # find most common date in this file, for naming
+                    first_dates[row["month"]] += 1
                 # Only output the columns we care about
                 subset = [row[k] for k in settings.REQUIRED_NORMALISED_KEYS]
-                self.rows.append(subset)
+                writer.writerow(subset)
+        self.outfile.flush()
+        return first_dates.most_common(1)[0][0]
 
-    def to_csv(self):
-        df = pd.DataFrame(columns=settings.REQUIRED_NORMALISED_KEYS, data=self.rows)
-        cols = ["month", "test_code", "practice_id", "result_category"]
-        df["count"] = 1
-
-        # Make a filename which reasonably represents the contents of
-        # the file and doesn't already exist
-        date_collected = (
-            df.groupby("month").count()["test_code"].sort_values().index[-1]
-        )
+    def work(self, filename):
+        most_common_date = self.feed_file(filename)
         converted_basename = "{}converted_{}_{}".format(
-            settings.ENV, self.lab, date_collected.replace("/", "_")
+            settings.ENV, self.lab, most_common_date.replace("/", "_")
         )
         dupes = 0
-        if os.path.exists("{}.csv".format(converted_basename)):
+        if os.path.exists(
+            settings.INTERMEDIATE_DIR / "{}.csv".format(converted_basename)
+        ):
             dupes += 1
             candidate_basename = "{}_{}".format(converted_basename, dupes)
-            while os.path.exists("{}.csv".format(candidate_basename)):
+            while os.path.exists(
+                settings.INTERMEDIATE_DIR / "{}.csv".format(candidate_basename)
+            ):
                 dupes += 1
                 candidate_basename = "{}_{}".format(converted_basename, dupes)
             converted_basename = candidate_basename
         converted_filename = "{}.csv".format(converted_basename)
-        df[cols].to_csv(settings.INTERMEDIATE_DIR / converted_filename, index=False)
-        return converted_filename
+        os.rename(self.outfile.name, settings.INTERMEDIATE_DIR / converted_filename)
+        return str(settings.INTERMEDIATE_DIR / converted_filename)

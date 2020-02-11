@@ -36,8 +36,7 @@ def process_file(
         normalise_data=normalise_data,
         convert_to_result=convert_to_result,
     )
-    anonymiser.feed_file(filename)
-    converted_filename = anonymiser.to_csv()
+    converted_filename = anonymiser.work(filename)
     mark_as_processed(lab, filename, converted_filename)
 
 
