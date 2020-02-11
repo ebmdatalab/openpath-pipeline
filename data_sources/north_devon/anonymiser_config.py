@@ -75,7 +75,10 @@ def drop_unwanted_data(row):
 
 
 PRACTICE_MAP = (
-    pd.read_csv("north_devon/north_devon_practice_mapping.csv", na_filter=False)
+    pd.read_csv(
+        os.path.join(os.path.dirname(__file__), "north_devon_practice_mapping.csv"),
+        na_filter=False,
+    )
     .set_index("LIMS code")
     .to_dict(orient="index")
 )
