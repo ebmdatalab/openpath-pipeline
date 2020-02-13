@@ -3,6 +3,8 @@ import os
 import sys
 
 from lib.file_processing import process_files
+from lib.fetchers import get_codes
+from lib.fetchers import get_practices
 
 import importlib
 
@@ -86,11 +88,15 @@ def main():
         action="store_true",
     )
     config = parser.parse_args()
-    config.command(config)
+    try:
+        config.command(config)
+    except AttributeError:
+        parser.print_help()
 
 
 def do_fetch(args):
-    print("fetching")
+    get_codes()
+    get_practices()
 
 
 def do_process(args):
