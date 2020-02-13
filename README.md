@@ -8,16 +8,22 @@ into a single zipped CSV file, suitable for consumption by the
 Each lab's configuration is represented by a folder / python module
 witin `data_sources/`, along with a bit of config in `lib.settings`
 
-# Data source anonymisation
+# Refreshing external data depencenices
 
+    PYTHONPATH=.  python runner.py fetch
+
+And then commit the resulting files (in `final_data/`)
+
+
+# Data source anonymisation
 
 To run the cornwall processor, for example:
 
-    PYTHONPATH=. DATA_BASEDIR=/mnt/secure_private_data python runner.py cornwall
+    PYTHONPATH=. DATA_BASEDIR=/mnt/secure_private_data python runner.py process cornwall
 
 To run against sample / test data (no-multiprocessing makes debugging easier):
 
-    PYTHONPATH=. LOG_LEVEL=DEBUG python runner.py  cambridge --no-multiprocessing --reimport --single-file=data_sources/cambridge/example.csv
+    PYTHONPATH=. LOG_LEVEL=DEBUG python runner.py process cambridge --no-multiprocessing --reimport --single-file=data_sources/cambridge/example.csv
 
 The runner is idempotent; current progress is recorded in a SQLite
 database. Only new, unprocessed files are processed in a normal run. A
