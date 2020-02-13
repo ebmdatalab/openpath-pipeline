@@ -33,9 +33,11 @@ def get_ref_ranges(path):
     ]
     with open(path, newline="", encoding="ISO-8859-1") as f:
         lines = sorted(list(csv.DictReader(f)), key=lambda x: x["test"])
-    assert sorted(lines[0].keys()) == sorted(
-        required_cols
-    ), "CSV at {} must define columns {}".format(path, required_cols)
+    assert set(required_cols).issubset(
+        set(lines[0].keys())
+    ), "CSV at {} must define columns {}, has {}".format(
+        path, required_cols, lines[0].keys()
+    )
     return lines
 
 
