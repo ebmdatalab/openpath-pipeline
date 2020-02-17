@@ -8,3 +8,4 @@ __pycache__/
 converted*csv
 combined*.csv
 *log
+intermediate_data/

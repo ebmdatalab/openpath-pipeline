@@ -7,7 +7,7 @@ import codecs
 from datetime import datetime
 import re
 
-from lib.anonymise import StopProcessing
+from lib.intermediate_file_processing import StopProcessing
 
 LAB_CODE = "cornwall"
 REFERENCE_RANGES = "cornwall_ref_ranges.csv"
@@ -15,7 +15,6 @@ files_path = os.path.join(
     os.environ.get("DATA_BASEDIR", "/home/filr/"), "Cornwall/*.zip"
 )
 INPUT_FILES = glob.glob(files_path)
-assert INPUT_FILES, "No input files found at {}".format(files_path)
 
 
 def row_iterator(filename):
@@ -28,19 +27,18 @@ def row_iterator(filename):
             yield row
 
 
-def drop_unwanted_data(row_anonymiser):
+def drop_unwanted_data(row):
     """Drop any rows of test data, obviously corrupted data, or otherwise
         unusable data (e.g. no information about the patient's age or the
         practice)
         """
-    row = row_anonymiser.row
     if not row["PatientDOB"]:
         raise StopProcessing()
     if row["SpecialtyCode"] not in ["600", "180"]:
         raise StopProcessing()
 
 
-def normalise_data(row_anonymiser):
+def normalise_data(row):
     """Convert test results to float wherever possible; extract a
     direction if required; set age from DOB; format the date to
     %Y/%m/01.
@@ -48,16 +46,13 @@ def normalise_data(row_anonymiser):
     Additionally, rename the fields to the standardised list.
 
     """
-    row = row_anonymiser.row
     # Replace rows containing floats and percentages with just the floats.
     # See https://github.com/ebmdatalab/openpathology/issues/87#issuecomment-512765880
     #
     # A typical cll looks like `0.03 0.5%`
     FLOAT_PERCENT_RX = re.compile(r"([0-9.])+ +[0-9. ]+%")
-    result = re.sub(FLOAT_PERCENT_RX, r"\1", row_anonymiser.row["TestResult"])
-    order_date = datetime.strptime(
-        row_anonymiser.row["TestOrderDate"], "%Y-%m-%d %H:%M:%S"
-    )
+    result = re.sub(FLOAT_PERCENT_RX, r"\1", row["TestResult"])
+    order_date = datetime.strptime(row["TestOrderDate"], "%Y-%m-%d %H:%M:%S")
     row["month"] = order_date.strftime("%Y/%m/01")
     direction = None
     try:
@@ -94,4 +89,4 @@ def normalise_data(row_anonymiser):
     mapped = {}
     for k, v in col_mapping.items():
         mapped[k] = row[v]
-    row_anonymiser.row = mapped
+    return mapped
