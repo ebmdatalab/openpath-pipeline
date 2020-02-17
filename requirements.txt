@@ -5,13 +5,18 @@
 #    pip-compile
 #
 argparse==1.4.0           # via dateutils
+certifi==2019.11.28       # via requests
+chardet==3.0.4            # via requests
 dateutils==0.6.7
 et-xmlfile==1.0.1         # via openpyxl
+idna==2.8                 # via requests
 jdcal==1.4.1              # via openpyxl
 numpy==1.17.4
 openpyxl==3.0.2
-pandas==0.25.3
+pandas==1.0.1
 python-dateutil==2.8.1    # via dateutils, pandas
 pytz==2019.3              # via dateutils, pandas
+requests==2.22.0
 six==1.13.0               # via python-dateutil
 sqlalchemy==1.3.11
+urllib3==1.25.8           # via requests
