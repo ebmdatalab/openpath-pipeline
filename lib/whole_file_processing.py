@@ -112,27 +112,30 @@ def _get_test_codes(lab):
     have been marked in the Google Sheet for export.
 
     """
-    columns = settings.TEST_CODE_MAPPINGS[lab] + ["datalab_testcode"]
-    df = pd.read_csv(
-        settings.FINAL_DIR / "test_codes.csv",
-        na_filter=False,
-        usecols=columns + ["show_in_app?", "testname"],
-    )
-    df = df[df["show_in_app?"] == True]
-
-    # Drop any mappings that are actually the same as the datalab one
-    for colname in settings.TEST_CODE_MAPPINGS[lab]:
-        df.loc[df[colname] == df["datalab_testcode"], colname] = "_DONTJOIN_"
-
-    dupe_codes = df.datalab_testcode[df.datalab_testcode.duplicated()]
-    dupe_names = df.testname[df.testname.duplicated()]
-    if not dupe_codes.empty or not dupe_names.empty:
-        raise ValueError(
-            f"Non-unique test codes or names\n"
-            f" codes: {', '.join(dupe_codes)}\n"
-            f" names: {', '.join(dupe_names)}"
+    if settings.TEST_CODE_MAPPINGS[lab]:
+        columns = settings.TEST_CODE_MAPPINGS[lab] + ["datalab_testcode"]
+        df = pd.read_csv(
+            settings.FINAL_DIR / "test_codes.csv",
+            na_filter=False,
+            usecols=columns + ["show_in_app?", "testname"],
         )
-    return df[columns]
+        df = df[df["show_in_app?"] == True]
+
+        # Drop any mappings that are actually the same as the datalab one
+        for colname in settings.TEST_CODE_MAPPINGS[lab]:
+            df.loc[df[colname] == df["datalab_testcode"], colname] = "_DONTJOIN_"
+
+        dupe_codes = df.datalab_testcode[df.datalab_testcode.duplicated()]
+        dupe_names = df.testname[df.testname.duplicated()]
+        if not dupe_codes.empty or not dupe_names.empty:
+            raise ValueError(
+                f"Non-unique test codes or names\n"
+                f" codes: {', '.join(dupe_codes)}\n"
+                f" names: {', '.join(dupe_names)}"
+            )
+        return df[columns]
+    else:
+        return []
 
 
 def _normalise_test_codes(lab, df):
@@ -147,21 +150,27 @@ def _normalise_test_codes(lab, df):
     # process of documenting this.
 
     test_code_mapping = _get_test_codes(lab)
-    output = pd.DataFrame(columns=orig_cols)
-    # For each test code identified for the lab in our
-    # manually-curated mapping spreadsheet, rename any codes to our
-    # normalised `datalab_testcode`. In addition, be sure also to
-    # match on any codes in the lab data which are exactly the same as
-    # the `datalab_testcode`.
-    for colname in settings.TEST_CODE_MAPPINGS[lab] + ["datalab_testcode"]:
-        result = df.merge(
-            test_code_mapping, how="inner", left_on="test_code", right_on=colname
-        )
-        result = result.rename(
-            columns={"test_code": "source_test_code", "datalab_testcode": "test_code"}
-        )
-        output = output.append(result[orig_cols])
-    return output
+    if test_code_mapping:
+        output = pd.DataFrame(columns=orig_cols)
+        # For each test code identified for the lab in our
+        # manually-curated mapping spreadsheet, rename any codes to our
+        # normalised `datalab_testcode`. In addition, be sure also to
+        # match on any codes in the lab data which are exactly the same as
+        # the `datalab_testcode`.
+        for colname in settings.TEST_CODE_MAPPINGS[lab] + ["datalab_testcode"]:
+            result = df.merge(
+                test_code_mapping, how="inner", left_on="test_code", right_on=colname
+            )
+            result = result.rename(
+                columns={
+                    "test_code": "source_test_code",
+                    "datalab_testcode": "test_code",
+                }
+            )
+            output = output.append(result[orig_cols])
+        return output
+    else:
+        return df
 
 
 def estimate_errors(df):
