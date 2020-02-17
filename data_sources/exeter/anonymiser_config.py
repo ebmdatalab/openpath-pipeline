@@ -98,7 +98,7 @@ def normalise_data(row):
             row["Date_Specimen_Collected"], "%Y-%m-%d 00:00:00"
         )
     except ValueError:
-        log_warning(row, "Unparseable date %s", order_date)
+        log_warning(row, "Unparseable date %s", row["Date_Specimen_Collected"])
         raise StopProcessing()
 
     row["month"] = order_date.strftime("%Y/%m/01")
