@@ -42,6 +42,8 @@ def row_iterator(filename):
         "Requested_Test_Code",
         "Test_Performed",
         "Date_Test_Performed",
+        "Date_Request_Made",
+        "Date_Specimen_Received",
         "Test_Result",
         "Test_Result_Range",
         "Test_Result_Units",
@@ -83,11 +85,19 @@ def normalise_data(row):
     Additionally, rename the fields to the standardised list.
 
     """
-    date_field = row["Date_Request_Made"]
-    try:
-        order_date = datetime.strptime(date_field, "%Y-%m-%d 00:00:00")
-    except ValueError:
-        log_warning(row, "Unparseable date %s", date_field)
+    date_fields = [
+        "Date_Request_Made",
+        "Date_Specimen_Collected",
+        "Date_Specimen_Received",
+    ]
+    order_date = None
+    for date_field in date_fields:
+        try:
+            order_date = datetime.strptime(row[date_field], "%Y-%m-%d 00:00:00")
+        except ValueError:
+            pass
+    if not order_date:
+        log_warning(row, "Unparseable date")
         raise StopProcessing()
 
     row["month"] = order_date.strftime("%Y/%m/01")
