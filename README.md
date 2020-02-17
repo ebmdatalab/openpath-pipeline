@@ -41,7 +41,6 @@ suppression)
 # Making a data source
 
 
-
 A data source is a package within `data_sources/`,
 (e.g. `data_sources/north_devon/`)
 
@@ -53,6 +52,27 @@ codes indicating that the range could not be computed (for example,
 because we currently don't consider children for reference ranges; or
 because a value was non-numeric).
 
+
+## Checklist for a new data source
+
+* On the secure server:
+  * Check you can extract raw files
+  * Review file format. Make notes in a README in `data_sources/<lab_id>`.
+  * If reference ranges are required, obtain a file, and create a normalised version (see [here](https://github.com/ebmdatalab/openpath-pipeline/blob/0d378e18b6581ecb1e588cb50d129487de927623/lib/intermediate_file_processing.py#L64-L74) for notes). This is currently done by Helen, and should be done using a script ([example](https://github.com/ebmdatalab/openpath-pipeline/blob/0d378e18b6581ecb1e588cb50d129487de927623/data_sources/cornwall/generate_ranges.py))
+  * Save any supplementary files (reference ranges, test metadata) in the same location, and also note in the README
+  * Make an anonymised sample:
+    * Replace any patient identifiers with random strings
+    * Jitter any patient ages by several years
+    * Jitter any numeric results
+    * Jitter any sample / result dates by several years
+    * Shuffle any GP/surgery identifier columns
+  * Copy this to a local file
+* Test and develop a processing configuration
+* When this works, generate a list of test codes (on secure server) to aid in test code normalisation
+* Create test code normalisation. This is currently done in [a google sheet](https://drive.google.com/drive/u/1/folders/1IptCY7S_32fGnxWQQJaN2p51b1phaeK1) by Helen; there are notes in the "procedure" worksheet as to how this has been done previously
+* See if the whole thing runs on the secure server
+
+## Data source processing walkthrough
 
 A data source must a file `anonymiser_config.py`.  This file must contain:
 
