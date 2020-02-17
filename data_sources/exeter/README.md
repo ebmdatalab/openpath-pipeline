@@ -46,6 +46,8 @@ The within/outside range indicator `Test_Result_Range`, and is `H`, `L`, `N`, or
 
 The test carried out is `Test_Performed`.
 
+`Date_Request_Made` always has a value, whereas `Date_Specimen_Collected` does not, so we'll use the former
+
 The `Age_on_Date_Request_Rec'd` field is of the form `56y` for adults, or `11y 10m` for children.
 
 The extract is exclusively a `Specimen_Number_Discipline` of `Haem/Chem`.

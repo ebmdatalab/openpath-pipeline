@@ -34,27 +34,17 @@ def row_iterator(filename):
     """Provide a way to iterate over every row as a dict in the given file
     """
     required_cols = [
-        "Specimen_Number_Discipline",
         "Date_Request_Made",
-        "Time_Request_Made",
-        "Patients_Number",
-        "Specimen_Comment",
-        "Specimen_Number",
-        "Specimen_Type_Code",
-        "Specimen_Type_Desc",
         "Requesting_Organisation_Code",
         "Requesting_Organisation_Desc",
         "Age_on_Date_Request_Rec'd",
         "Sex",
-        "Date_Specimen_Collected",
-        "Date_Specimen_Received",
         "Requested_Test_Code",
         "Test_Performed",
         "Date_Test_Performed",
         "Test_Result",
         "Test_Result_Range",
         "Test_Result_Units",
-        "Date_Approved",
     ]
     wb = load_workbook(filename, read_only=True)
     ws = wb.active
@@ -93,12 +83,11 @@ def normalise_data(row):
     Additionally, rename the fields to the standardised list.
 
     """
+    date_field = row["Date_Request_Made"]
     try:
-        order_date = datetime.strptime(
-            row["Date_Specimen_Collected"], "%Y-%m-%d 00:00:00"
-        )
+        order_date = datetime.strptime(date_field, "%Y-%m-%d 00:00:00")
     except ValueError:
-        log_warning(row, "Unparseable date %s", row["Date_Specimen_Collected"])
+        log_warning(row, "Unparseable date %s", date_field)
         raise StopProcessing()
 
     row["month"] = order_date.strftime("%Y/%m/01")
