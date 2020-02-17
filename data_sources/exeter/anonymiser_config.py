@@ -62,8 +62,9 @@ def row_iterator(filename):
     for row in ws.iter_rows():
         if not keys:
             keys = [x.value for x in row]
-            assert set(keys).issubset(
-                set(required_cols)
+            # check every element in required_cols is in keys
+            assert set(required_cols).issubset(
+                set(keys)
             ), "File at {} must define columns {}, has {}".format(
                 filename, required_cols, keys
             )
