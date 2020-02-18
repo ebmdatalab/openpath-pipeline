@@ -69,9 +69,10 @@ def combine_and_append_csvs(lab):
         # belt-and-braces: has the number of tests in the
         # previously-most-recent month stayed within 20% of previous
         # value?
+        nan_months = existing[pd.isnull(existing["month"])]
         assert (
-            len(existing[pd.isnull(existing["month"])]) == 0
-        ), "There are `nan` values for month"
+            len(nan_months) == 0
+        ), f"There are `nan` values for month in {all_results_path}: {nan_months.head()}"
         month_vals = sorted(existing["month"].unique())
         final_month = month_vals[-1]
         final_count = existing[existing["month"] == final_month].count().iloc[0]
