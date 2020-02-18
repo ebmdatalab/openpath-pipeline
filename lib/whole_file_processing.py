@@ -150,7 +150,7 @@ def _normalise_test_codes(lab, df):
     # process of documenting this.
 
     test_code_mapping = _get_test_codes(lab)
-    if test_code_mapping:
+    if len(test_code_mapping):
         output = pd.DataFrame(columns=orig_cols)
         # For each test code identified for the lab in our
         # manually-curated mapping spreadsheet, rename any codes to our
