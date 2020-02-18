@@ -5,7 +5,11 @@ import sys
 from lib.file_processing import process_files
 from lib.fetchers import get_codes
 from lib.fetchers import get_practices
-
+from lib.whole_file_processing import (
+    combine_and_append_csvs,
+    normalise_and_suppress,
+    make_final_csv,
+)
 import importlib
 
 
@@ -122,7 +126,7 @@ def do_process(args):
             convert_to_result = config.convert_to_result
         else:
             convert_to_result = None
-        result = process_files(
+        process_files(
             config.LAB_CODE,
             os.path.join(os.path.dirname(config.__file__), config.REFERENCE_RANGES),
             files,
@@ -134,7 +138,15 @@ def do_process(args):
             reimport=args.reimport,
             yes=args.yes,
         )
-        print(result)
+    done_something = False
+    for lab in labs.keys():
+        merged = combine_and_append_csvs(lab)
+        done_something = normalise_and_suppress(lab, merged) or done_something
+    combined = make_final_csv()
+    if done_something:
+        print("Final data at {}".format(combined))
+    else:
+        print("No data written")
 
 
 if __name__ == "__main__":

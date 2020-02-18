@@ -3,11 +3,6 @@ from multiprocessing import Pool
 import glob
 import os
 
-from .whole_file_processing import (
-    combine_and_append_csvs,
-    normalise_and_suppress,
-    make_final_csv,
-)
 from .intermediate_file_tracking import reset_lab, get_processed_filenames
 
 from .intermediate_file_processing import make_intermediate_file
@@ -72,10 +67,3 @@ def process_files(
         else:
             for f in filenames:
                 make_intermediate_file_partial(f)
-    merged = combine_and_append_csvs(lab)
-    finished = normalise_and_suppress(lab, merged)
-    combined = make_final_csv()
-    if finished:
-        return "Final data at {}".format(combined)
-    else:
-        return "No data written"
