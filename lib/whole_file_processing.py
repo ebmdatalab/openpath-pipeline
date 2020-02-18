@@ -64,6 +64,10 @@ def combine_and_append_csvs(lab):
             dtype=settings.INTERMEDIATE_OUTPUT_DTYPES,
             na_filter=False,
         )
+        # Remove any stray dates earlier than DATE_FLOOR
+        existing = existing[
+            existing["month"] != settings.DATE_FLOOR.strftime("%Y/%m/01")
+        ]
         # Test we're not re-appending rows to the same file. In theory
         # this shouldn't happen as we track imported filenames, but
         # belt-and-braces: has the number of tests in the
