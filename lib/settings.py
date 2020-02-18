@@ -20,7 +20,7 @@ TEST_CODE_MAPPINGS = {
     "cornwall": ["cornwall_testcode"],
     "plymouth": ["plym_testcode", "other_plym_codes"],
     "cambridge": [],
-    "exeter": [],
+    "exeter": ["exeter"],
 }
 
 
