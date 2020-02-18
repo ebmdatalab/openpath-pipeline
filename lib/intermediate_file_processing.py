@@ -232,7 +232,11 @@ def make_intermediate_file(
     outfile.flush()
 
     # Compute an unused filename that reflects its contents to some degree
-    most_common_date = first_dates.most_common(1)[0][0]
+    try:
+        most_common_date = first_dates.most_common(1)[0][0]
+    except IndexError:
+        log_warning({}, f"Unable to find date in {filename}")
+        most_common_date = "unknown_date"
     converted_basename = "{}converted_{}_{}".format(
         settings.ENV, lab, most_common_date.replace("/", "_")
     )
