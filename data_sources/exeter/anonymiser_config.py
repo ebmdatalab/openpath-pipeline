@@ -1,5 +1,7 @@
 import glob
 import os
+import pandas as pd
+
 from datetime import datetime
 from openpyxl import load_workbook
 
@@ -77,6 +79,14 @@ def drop_unwanted_data(row):
         raise StopProcessing()
 
 
+PRACTICE_MAP = (
+    pd.read_csv(os.path.join(os.path.dirname(__file__), "exeter_practices_branch.csv"))
+    .set_index("Requesting_Organisation_Code")[["Parent_Requesting_Organisation_Code"]]
+    .dropna()
+    .to_dict(orient="index")
+)
+
+
 def normalise_data(row):
     """Convert test results to float wherever possible; extract a
     direction if required; set age from DOB; format the date to
@@ -106,12 +116,14 @@ def normalise_data(row):
     row["sex"] = ""
     row["test_result"] = ""
     row["direction"] = ""
-
+    row["practice_id"] = PRACTICE_MAP.get(
+        row["Requesting_Organisation_Code"], row["Requesting_Organisation_Code"]
+    )
     col_mapping = {
         "month": "month",
         "test_code": "Test_Performed",
         "test_result": "test_result",
-        "practice_id": "Requesting_Organisation_Code",
+        "practice_id": "practice_id",
         "age": "age",
         "sex": "sex",
         "direction": "direction",

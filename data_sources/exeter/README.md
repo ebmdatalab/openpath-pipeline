@@ -1,4 +1,4 @@
-File locations:
+# File locations
 
 'Open Path April 2018 - Copy.xlsx'
 'Open Path August 2018 - Copy.xlsx'
@@ -13,6 +13,8 @@ File locations:
 'Open Path October 2018 - Copy.xlsx'
 'Open Path September 2018 - Copy.xlsx'
 
+
+# File format
 
 A single file (July 2018 in this case) contains 615k rows
 
@@ -52,7 +54,9 @@ The `Age_on_Date_Request_Rec'd` field is of the form `56y` for adults, or `11y 1
 
 The extract is exclusively a `Specimen_Number_Discipline` of `Haem/Chem`.
 
-`Requesting_Organisation_Code` is generally of the form `L01234` or `Y01234`, but there are some exceptions:
+# Practice codes
+
+`Requesting_Organisation_Code` is generally of the form `L01234` or `Y01234`, but there are some exceptions, for example:
 
 * Compass House Medical Centre (!337) (1 test)
 * Parkill Medical Pract (!L83130) (1 test)
@@ -65,12 +69,10 @@ The extract is exclusively a `Specimen_Number_Discipline` of `Haem/Chem`.
 * Cherlton Fitzpaine Surgery (9) (49 tests) - part of Mid Devon Medical Practice (L83023)
 * Belvedere (BELV) (100 tests) - mental health
 
-There are a bynch of hopsitals in there, I think with the word "Hospital" in the `Requesting_Organisation_Desc` field.
+There are a bynch of hospitals in there, I think with the word
+"Hospital" in the `Requesting_Organisation_Desc` field.
 
-There's also a few which are branch surgeries:
-
-TODO: write a script to output all these
-
+With Rich's local knowledge, we've made a mapping file `exeter_practices_branch.csv`
 
 # Anonymising the dataframe
 

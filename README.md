@@ -67,7 +67,8 @@ because a value was non-numeric).
     * Shuffle or randomise any GP/surgery identifier columns
   * Copy this to a local file
 * Test and develop a processing configuration
-* When this works, generate a list of test codes (on secure server) to aid in test code normalisation
+* When this works, generate a list of test codes (on secure server) to aid in test code normalisation. These should include test names where available.
+* You may also need to generate a list of practice ids to map - if practice names are also available, this will help
 * Create test code normalisation. This is currently done in [a google sheet](https://drive.google.com/drive/u/1/folders/1IptCY7S_32fGnxWQQJaN2p51b1phaeK1) by Helen; there are notes in the "procedure" worksheet as to how this has been done previously
 * See if the whole thing runs on the secure server
 
