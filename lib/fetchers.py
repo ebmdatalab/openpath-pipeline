@@ -16,15 +16,7 @@ def get_codes():
     url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeLPEW4rTy_hCktuAXEsXtivcdREDuU7jKfXlvJ7CTEBycrxWyunBWdLgGe7Pm1A/pub?gid=241568377&single=true&output=csv"
     target_path = settings.FINAL_DIR / "test_codes.csv"
     df = pd.read_csv(url)
-    df[df["show_in_app?"] == True][
-        [
-            "datalab_testcode",
-            "testname",
-            "nd_testcode",
-            "cornwall_testcode",
-            "lanc_testcode",
-        ]
-    ].to_csv(target_path, index=False)
+    df[df["show_in_app?"] == True].to_csv(target_path, index=False)
 
 
 def get_practices():

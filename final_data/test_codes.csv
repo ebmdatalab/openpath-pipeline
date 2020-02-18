@@ -1,131 +1,131 @@
-datalab_testcode,testname,nd_testcode,cornwall_testcode,lanc_testcode
-CREA,Creatinine,CREA,CREA,CRE
-K,Potassium,K,K,POT
-GFR1,GFR1,GFR1,CGFR,GFR
-HB,Haemoglobin,HB,HB1,HB
-MCHC,Mean Corpuscular Haemoglobin Concentration ,MCHC,CHC1,MCHC
-RBC,Red Blood Cell,RBC,RBC,RBC
-MONO,Monocyte,MONO,MONO,MONC
-WBC,White Blood Cell,WBC,WBC,WBC
-HCT,Haematocrit,HCT,HCT,HCT
-MCH,Mean Corpuscular Haemoglobin,MCH,MCH,HPSMCH
-RDW,Red Cell Distribution Width,RDW,RDW,RDWC
-MCV,Mean Corpuscular Volume,MCV,MCV,MCV
-LYMP,Lymphocyte,LYMP,LYMP,LYA
-BASO,Basophil,BASO,BASO,BASC
-EOS,Eosinophils,EOS,EOSI,EOSC
-PLT,Platelet Count,PLT,PLT,PLT
-NEUT,Neutrophil Count,NEUT,NEUT,GRA
-ALB,Albumin,ALB,ALB,ALB
-TP,"Protein, Total",TP,TP,TP
-ALKP,Alkaline Phosphatase,ALKP,ALP,ALP
-ALT,ALT,ALT,ALT,ALT
-TBIL,"Bilirubin, Total",TBIL,TBIL,TBIL
-H1CF,HBA1C,H1CF,A1CI,HBA1CBA
-CRP,C-Reactive Protein,CRP,CRP,CRP
-CHOL,"Cholesterol, Total",CHOL,CHO,CHOL
-HDL,"Cholesterol, HDL",HDL,HDL,HDL
-HDLR,Cholesterol/high density lipoprotein ratio,HDLR,CHDR,RR
-TSH,Serum TSH (thyroid stimulating hormone),TSH,TSH,TSHC
-UREA,Urea,UREA,UREA,URE
-CL,Chloride,CL,CL,CHL
-CA,Calcium,CA,CAL,TCA
-NHDL,"Cholesterol, non-HDL",NHDL,NHDL,NHDL
-PV,Plasma Viscosity,PV,PV,PLV
-FER,Ferritin,FER,FER,FER
-INR,INR,INR,INR,YAB
-UCRE,Urine Creatinine,UCRE,UCRE,UCREM
-UALB,Urine Albumin,UALB,UMA,UMALB
-UACT,Urine Albumin/Creatinine Ratio,UACT,UMCR,UACRR
-VITB12,Vitamin B12,B12,VB12,B12
-FOL,Folate,FOL,FOL,SF
-ADCA,Calcium (Adjusted),ADCA,ACAL,
-FT4,Free T4,FT4,FT4,FT4
-PSA,"PSA, Total",PSA,PSA,PSA
-TRIG,Triglycerides,TRIG,TG,TG
-FILM,FILM,FILM,FCOM,FILM
-PT,Prothrombin time,PT,PT,PT
-GLU,Glucose,GLU,GLU,GLU0
-AMY,Amylase,AMY,AM,AMY
-FIB,Fibrinogen,FIB,FIB,FACTI
-APTR,APTR,APTR,APTR,
-PHOS,Phosphate,PHOS,PHOS,IPHO
-IGA,Immunoglobulin A,IGA,IGA,CSA
-TTG,Serum tissue transglutaminase,TTG,TTGA,TTGA
-APTT,APTT Ratio,APT1,APTT,PTTC
-C125,CA 125,C125,C125,CA125
-UA,Urate,UA,UA,UA
-MG,Magnesium,MG,MG,MAG
-LDL,"Cholesterol, LDL",LDL,LDL,LDL
-FDP,D Dimers,FDP,DDIM,FDP
-IGG,Immunoglobulin G,IGG,IGG,FIG
-IGM,Immunoglobulin M,IGM,IGM,FIM
-GGT,Gamma G.T.,GGT,GGT,GGT
-FSH2,FSH,FSH2,FSH,FSH
-CK,Creatine Kinase,CK,CK,CK
-VITD,Vitamin D,VD,VTDT,TVD
-LH,LH (luteinising hormone),LH2,LH,LH
-PTH,Parathyroid Hormone,PTH,PTH,PTH
-NBNP,NTpro BNP,NBNP,NBNP,BNP
-RF,Rheumatoid Factor,RF,RF,RL
-UTP,Urine Total Protein,UTP,UP,UPC
-PRL3,Prolactin,PRL3,PROL,PROLZ
-LDH,LDH,LDH,LDH,LDH
-HCO3,Bicarbonate,HCO3,BIC,BIC
-LITH,Lithium,LITH,LI,LI
-RETIC,Reticulyte Count,RET#,RETA,RETC
-TEST,Testosterone,TEST,TEST,TEST
-RETP,Reticulyte Percent,RET%,RETP,RETP
-HCG,"hCG, Total",HCG,HCG,HCG
-UBJP,Urine Bence-Jones Protein,UBJP,BJP,
-ACCP,Anti-CCP,ACCP,ACCP,CCPA
-GF,Glandular Fever Screen,GF,GF,IM
-FT3,Free T3,FT3,FT3,FT3
-AST,AST,AST,AST,ASTA
-ADNA,ADNA,ADNA,DNAA?,DN
-FAI,Free Androgen Index,FAI,FAI,FAI
-SHBG,Sex Hormone Binding Globulin,SHBG,SHBG,SHBG
-CORT,Cortisol,CORT,CORT,CORT
-ENA,Extractable Nuclear Antigen,ENA,ENA,ENT
-ESR,Erythrocyte sedimentation rate,ESR,ESR,E
-ASM,Anti-Smooth Muscle,ASM,ASM,SMO
-IRO2,Serum Iron,IRO2,IRON,IRO
-THEO,Theophylline,THEO,THEO,THEO
-OSMO,Osmolality,OSMO,OSMO,OSM
-UK,Urine Potassium (random),UK,UK,UPOT
-UNA,Urine Sodium (random),UNA,UNA,USOD
-IGE,IgE,IGE,IGE,
-FCPT,FCPT,FCPT,,
-C3,C3,C3,C3,C3
-C4,C4,C4,C4,C4
-ANCA,ANCA,ANCA,ANCA,NCA
-UOSM,Urine Osmolality,UOSM,UOSM,UOSM
-TACR,TACR,TACR,TACR,
-REJ,REJ,REJ,REJ,
-CANC,CANC,CANC,CANC,NCA
-PANC,PANC,PANC,PANC,NCA
-CAER,CAER,CAER,CAER,ACER
-DIG,Digoxin,DIG,DIG,DIG
-LACT,Lactate,LACT,LACT,LAC
-ACE,ACE,ACE,ACE,ACE
-FPS,Free Protein S Antigen,FPS,FPS,
-MAST,MAST,MAST,MAST,MAST
-VITA,VITA,VITA,VITA,DVITA
-VITE,VITE,VITE,VITE,VITE
-C199,C199,C199,C199,CA1909
-PCO2,PCO2,PCO2,PCO2,
-PO2,PO2,PO2,PO2,
-SBIC,SBIC,SBIC,SBIC,
-PC,Protein C,PC,PC,PC
-AMH,AMH,AMH,AMH,AMH
-IA2,IA2,IA2,IA2,
-VALP,VALP,VALP,VALP,VALP
-C1EF,C1EF,C1EF,C1EF,
-C1EI,C1EI,C1EI,C1EI,
-VWAG,Von Willebrand Antigen,VWAG,VWAG,
-ZNT8,ZNT8,ZNT8,ZNT8,
-GENT,Gentamicin,GENT,GENT,GENT
-JAK2,JAK2,JAK2,JAK2,JAK2
-UPOR,UPOR,UPOR,UPOR,UPORQS
-UCP,UCP,UCP,UCP,
-CO,CO,CO,CO,CO
+readcode,datalab_testcode,testname,alternative_readcode,show_in_app?,show_in_app_helen,readname,nd_testcode,other_nd_testcode,cornwall_testcode,checked_by,checked_date,lanc_testcode_firstpass,lanc_testname_firstpass,lanc_testcode,lanc_testname,checked_by.1,plym_testcode_firstpass,plym_testname_firstpass,plym_testcode,plym_testname,current_flag,checked_by.2,other_plym_codes,notes,cambs_testcode_firstpass,cambs_testname_firstpass,cambs_testcode,cambs_testcode.1,notes.1,exeter
+44J3.,CREA,Creatinine,,True,True,Creatinine,CREA,,CREA,,,CRE,Creatinine,CRE,Creatinine,HC,CRE,Creatinine,CRE,Creatinine,Y,HC,,,1524.0,SERUM CREATININE,SERUM CREATININE,1524.0,,CREA
+44I4.,K,Potassium,,True,,Potassium,K,,K,,,POT,Potassium,POT,Potassium,HC,KA,Potassium,KA,Potassium,Y,HC,K,,1874.0,SERUM POTASSIUM,SERUM POTASSIUM,1874.0,,K
+451E.,GFR1,GFR1,,True,,eGFR (Non African- Caribbean),GFR1,,CGFR,,,GFR,Estimated GFR,GFR,Estimated GFR,HC,,,GFREPA,eGFR (EPI),Y,HC,,needs confirmation,1582.0,ESTIMATED GFR,ESTIMATED GFR,1582.0,,GFR1
+423..,HB,Haemoglobin,,True,,Haemoglobin,HB,,HB1,,,HB,Haemoglobin,HB,Haemoglobin,HC,HB3,Haemoglobin,HB3,Haemoglobin,P,HC,HB2,,247.0,HB,HB,247.0,,HB
+429..,MCHC,Mean Corpuscular Haemoglobin Concentration ,,True,,Mean Cell Haemoglobin Conc,MCHC,,CHC1,DH,14/8/19,MCHC,MCHC,MCHC,MCHC,HC,MCHC3,Mean Cell Haemoglobin Conc,MCHC3,Mean Cell Haemoglobin Conc,P,HC,MCHC1,,,,MCHC,260.0,,MCHC
+426..,RBC,Red Blood Cell,,True,,Red cell count,RBC,,RBC,,,RBC,Red Cell Count,RBC,Red Cell Count,HC,RBC3,Red Cells,RBC3,Red Cells,P,HC,RBC,,246.0,RBC,RBC,246.0,,RBC
+42N..,MONO,Monocyte,,True,,Monocyte Count,MONO,,MONO,,,MONC,Monocyte (absolute),MONC,Monocyte (absolute),HC,MONOS3,Monocytes,MONOS3,Monocytes,P,HC,MONOS,,275.0,MO#,MO#,275.0,,MONO
+42H..,WBC,White Blood Cell,,True,,White cell count,WBC,,WBC,,,WBC,White Cell Count,WBC,White Cell Count,HC,WBC,White Cells,WBC3,White Cells,P,HC,WBC,,245.0,WBC,WBC,245.0,,WBC
+4258,HCT,Haematocrit,,True,,Haematocrit,HCT,,HCT,,,,,HCT,Haematocrit,HC,HCT3,Haematocrit,HCT3,Haematocrit,P,HC,HCT,,248.0,HCT,HCT,248.0,,HCT
+428..,MCH,Mean Corpuscular Haemoglobin,,True,,Mean Cell Haemoglobin,MCH,,MCH,,,HPSMCH,MCH for Hbopathy,HPSMCH,MCH for Hbopathy,HC,MCH3,Mean Cell Haemoglobin,MCH3,Mean Cell Haemoglobin,P,HC,MCH,also MCH1!,255.0,MCH,MCH,255.0,,MCH
+42Z7.,RDW,Red Cell Distribution Width,,True,,Red Cell Distribution Width,RDW,,RDW,,,RDWC,Red Cell distribution width,RDWC,Red Cell distribution width,HC,,,RDW3,RBC Distribution Width,P,HC,RDW,,264.0,RDW,RDW,264.0,,RDW
+42A..,MCV,Mean Corpuscular Volume,,True,,Mean Cell Volume,MCV,,MCV,,,MCV,MCV,MCV,MCV,HC,MCV,Mean Cell Volume,MCV3,Mean Cell Volume,P,HC,MCV,,253.0,MCV,MCV,253.0,,MCV
+42M..,LYMP,Lymphocyte,,True,,Lymphocyte Count,LYMP,,LYMP,,,LYA,Total Lymphocytes,LYA,Total Lymphocytes,HC,LYMPH3,Lymphocytes,LYMPH3,Lymphocytes,P,HC,LYMPH,,273.0,LY#,LY#,273.0,,LYMP
+42L..,BASO,Basophil,,True,,Basophil Count,BASO,,BASO,,,BASC,Basophil (absolute),BASC,Basophil (absolute),HC,BASOS3,Basophils,BASOS3,Basophils,P,HC,BASOS,,279.0,BA#,BA#,279.0,,BASO
+42K..,EOS,Eosinophils,,True,,Eosinophil Count,EOS,,EOSI,,,EOSC,Eosinophil (absolute),EOSC,Eosinophil (absolute),HC,EOS3,Eosinophils,EOS3,Eosinophils,P,HC,EOS,,277.0,EO#,EO#,277.0,,EOS
+42P..,PLT,Platelet Count,,True,,Platelet Count,PLT,,PLT,,,PLT,Platelets,PLT,Platelets,HC,PLAT3,Platelets,PLAT3,Platelets,P,HC,PLAT,,267.0,PLT,PLT,267.0,,PLT
+42J..,NEUT,Neutrophil Count,,True,,Neutrophil Count,NEUT,,NEUT,,,GRA,Total Granulocytes,GRA,Total Granulocytes,HC,NEUTS3,Neutrophils,NEUTS3,Neutrophils,P,HC,NEUTS,,271.0,NE#,NE#,271.0,,NEUT
+44M4.,ALB,Albumin,,True,,Albumin,ALB,,ALB,,,ALB,Albumin,ALB,Albumin,HC,ALBA,Albumin,ALBA,Albumin,Y,HC,ALB,,1396.0,ALBUMIN,ALBUMIN,1396.0,,ALB
+44M3.,TP,"Protein, Total",,True,,Total Protein,TP,,TP,,,TP,Total protein,TP,Total protein,HC,TPA,Total Protein,TPA,Total Protein,Y,HC,TP,,3069.0,TOTAL PROTEIN,TOTAL PROTEIN,3069.0,,TP
+44F..,ALKP,Alkaline Phosphatase,,True,,Alk.Phos.,ALKP,,ALP,,,ALP,Alkaline Phosphatase,ALP,Alkaline Phosphatase,HC,ALPA,Alkaline Phosphatase,ALPA,Alkaline Phosphatase,Y,HC,ALKP,,1401.0,ALKALINE PHOSPHATASE,ALKALINE PHOSPHATASE,1401.0,,ALKP
+44GB.,ALT,ALT,,True,,A.L.T.,ALT,,ALT,,,ALT,ALT,ALT,ALT,HC,ALTA,Alanine Transaminase,ALTA,Alanine Transaminase,Y,HC,ALT,,1404.0,ALANINE TRANSAMINASE,ALANINE TRANSAMINASE,1404.0,,ALT
+44EC.,TBIL,"Bilirubin, Total",,True,,Total Bilirubin,TBIL,,TBIL,,,TBIL,Total bilirubin,TBIL,Total bilirubin,HC,BILA,Bilirubin,BILA,Bilirubin,Y,HC,BIL,,3393.0,TOTAL BILIRUBIN,TOTAL BILIRUBIN,3393.0,,TBIL
+42W5.,H1CF,HBA1C,,True,,IFCC Glycated HbA1c,H1CF,,A1CI,,,HBA1CBA,HbA1c (boronate affinity),HBA1CBA,HbA1c (boronate affinity),HC,HBA1C,HBA1c (IFCC),HBA1C,HBA1c (IFCC),P,,,,1363.0,HBA1C (IFCC) MMOL/MOL,HBA1C (IFCC) MMOL/MOL,1363.0,,H1CF
+44CS.,CRP,C-Reactive Protein,,True,,C-Reactive Protein,CRP,,CRP,,,CRP,C Reactive Protein,CRP,C Reactive Protein,HC,,,CRPA,CRP,Y,HC,CRP,,1525.0,CRP,CRP,1525.0,,CRP
+44P..,CHOL,"Cholesterol, Total",,True,,Cholesterol,CHOL,,CHO,,,CHOL,Serum Cholesterol,CHOL,Serum Cholesterol,HC,CHOLA,Cholesterol,CHOLA,Cholesterol,P,HC,CHOL,,3020.0,CHOLESTEROL,CHOLESTEROL,3020.0,,CHOL
+44P5.,HDL,"Cholesterol, HDL",,True,,HDL-Cholesterol,HDL,,HDL,,,HDL,HDL Cholesterol,HDL,HDL Cholesterol,HC,HDLA,HDL - Cholesterol,HDLA,HDL - Cholesterol,Y,,HDLC,?,1703.0,HDL CHOLESTEROL,HDL CHOLESTEROL,1703.0,,HDL
+44lF.,HDLR,Cholesterol/high density lipoprotein ratio,,True,,Cholesterol / HDL Ratio,HDLR,,CHDR,,,RR,Total Cholesterol/HDL ratio,RR,Total Cholesterol/HDL ratio,HC,CHDLA,Cholesterol/HDL Ratio,CHDLA,Cholesterol/HDL Ratio,P,,,,1706.0,CHOLESTEROL/HDL RATIO,CHOLESTEROL/HDL RATIO,1706.0,,HDLR
+442W.,TSH,Serum TSH (thyroid stimulating hormone),,True,,T.S.H.,TSH,,TSH,,,TSHC,TSH Check,TSHC,TSH Check,HC,TSHA,Thyroid Stimulating Hormone,TSHA,Thyroid Stimulating Hormone,P,HC,TSH,,2018.0,TSH,TSH,2018.0,,TSH
+44J9.,UREA,Urea,,True,,Urea,UREA,,UREA,,,URE,Urea,URE,Urea,HC,UREAA,Urea,UREAA,Urea,Y,HC,UREA,,2122.0,SERUM UREA,SERUM UREA,2122.0,,UREA
+44I6.,CL,Chloride,,True,,Chloride,CL,,CL,,,CHL,Chloride,CHL,Chloride,HC,CLA,Chloride,CLA,Chloride,Y,HC,CL,,,,,,can't find,
+44I8.,CA,Calcium,,True,,Total Calcium,CA,,CAL,,,TCA,Total calcium,TCA,Total calcium,HC,CAA,Calcium,CAA,Calcium,Y,HC,CA,,1466.0,CALCIUM,CALCIUM,1466.0,,
+44PL0,NHDL,"Cholesterol, non-HDL",,True,,Calc. Non-HDL cholesterol,NHDL,,NHDL,,,NHDL,Non - HDL Cholesterol,NHDL,Non - HDL Cholesterol,HC,NHDLA,Non-HDL Cholesterol,NHDLA,Non-HDL Cholesterol,Y,HC,NONHDL,,5747.0,NON HDL CHOLESTEROL,NON HDL CHOLESTEROL,5747.0,,NHDL
+42B..,PV,Plasma Viscosity,,True,,Plasma Viscosity,PV,,PV,,,PLV,Plasma Viscosity,PLV,Plasma Viscosity,HC,PV,Plasma Viscosity,PV,Plasma Viscosity,Y,,,,,,,,can't find (test not conducted),PV
+42R4.,FER,Ferritin,,True,,Ferritin,FER,,FER,,,FER,Ferritin,FER,Ferritin,HC,FERA,Ferritin,FERA,Ferritin,Y,HC,FER,,1597.0,FERRITIN,FERRITIN,1597.0,,FER
+42QE.,INR,INR,,True,,INR,INR,,INR,,,YAB,Anticoagulant INR + DOSE,YAB,Anticoagulant INR + DOSE,HC,INR,INR,INR,INR,Y,,,,,,,,GPINR?,INR
+46M7.,UCRE,Urine Creatinine,,True,,Urine Creatinine,UCRE,,UCRE,,,UCREM,Urine Creatinine,UCREM,Urine Creatinine,HC,UCREAA,Urine Creatinine,UCREAA,Urine Creatinine,Y,HC,UCREPA,,6454.0,URINE CREATININE MMOL,URINE CREATININE MMOL,6454.0,,UCRE
+46W..,UALB,Urine Albumin,46N4.,True,,Urine Microalbumin ,UALB,,UMA,,,,,UMALB,Urine albumin,HC,MALBA,Urine Microalbumin,MALBA,Urine Microalbumin,P,HC,MALB,,,,URINE ALBUMIN,3010.0,"note mix of alb/microalb between trusts, all merged here",UALB
+46TC.,UACT,Urine Albumin/Creatinine Ratio,,True,,Urine Alb/Creat Ratio,UACT,,UMCR,,,UACRR,Albumin/Creatinine Ratio,UACRR,Albumin/Creatinine Ratio,HC,MCRATA,Albumin:Creatinine Ratio,MCRATA,Albumin:Creatinine Ratio,P,HC,MCRAT,,6514.0,URINE ALBUMIN/CREATININE RATIO,URINE ALBUMIN/CREATININE RATIO,6514.0,,
+42T..,VITB12,Vitamin B12,,True,,Vitamin B12,B12,,VB12,,,B12,Vitamin B12,B12,Vitamin B12,HC,B12A,Vitamin B12,B12A,Vitamin B12,Y,HC,B12,,3483.0,VITAMIN B12,VITAMIN B12,3483.0,,VITB12
+42U5.,FOL,Folate,,True,,Folate,FOL,,FOL,,,SF,Serum Folate,SF,Serum Folate,HC,SFOLA,Folate,SFOLA,Folate,P,HC,SFOL2,,2166.0,FOLATE,FOLATE,2166.0,,FOL
+44IC0,ADCA,Calcium (Adjusted),,True,,Adjusted Calcium,ADCA,,ACAL,,,,,,,HC,CCAA,Adjusted Calcium,CCAA,Adjusted Calcium,P,HC,,,1518.0,ADJUSTED CALCIUM,ADJUSTED CALCIUM,1518.0,,
+442V.,FT4,Free T4,,True,,Free T4,FT4,,FT4,,,FT4,FT4,FT4,FT4,HC,FT4A,Free Thyroxine,FT4A,Free Thyroxine,Y,HC,FT4,,1646.0,FREE T4,FREE T4,1646.0,,FT4
+43Z22,PSA,"PSA, Total",43ZF.,True,,P.S.A.,PSA,,PSA,,,PSA,PSA,PSA,PSA,HC,PSAA,Prostate Specific Antigen,PSAA,Prostate Specific Antigen,P,HC,PSAR,?,1085.0,COMPLEXED PSA,TOTAL PSA,3058.0,changed from complexed PSA (rarer test matched by read code),PSA
+44Q..,TRIG,Triglycerides,,True,,Triglyceride,TRIG,,TG,,,TG,Triglyceride,TG,Triglyceride,HC,TRIGA,Triglyceride,TRIGA,Triglyceride,Y,HC,TRIG,,3072.0,TRIGLYCERIDE,TRIGLYCERIDE,3072.0,,TRIG
+421B.,FILM,FILM,,True,,Blood Film,FILM,,FCOM,,,FILM,Blood Film,FILM,Blood Film,HC,,,,,,,,,,,,,,
+42Q5.,PT,Prothrombin time,,True,,Prothrombin time,PT,,PT,,,,,PT,Prothrombin time,HC,,,PT,Prothrombin Time,P,,,,290.0,PT,PT,290.0,,PT
+44g..,GLU,Glucose,,True,,Glucose.,GLU,GLUX,GLU,,,GLU0,Pl Glucose 0 min,GLU0,Pl Glucose 0 min,HC,GLU,Plasma Glucose,GLU,Plasma Glucose,P,,,,1603.0,PLASMA GLUCOSE,PLASMA GLUCOSE,1603.0,,GLU
+44CN.,AMY,Amylase,,True,,Amylase,AMY,,AM,,,AMY,Serum Amylase,AMY,Serum Amylase,HC,PAMYL,Amylase,PAMYL,Amylase,Y,,,,1412.0,AMYLASE,AMYLASE,1412.0,,AMY
+42Qn.,FIB,Fibrinogen,,True,,Fibrinogen,FIB,,FIB,,,FACTI,Factor I,FACTI,Factor I,HC,FIB,Fibrinogen,FIB,Fibrinogen,Y,,,,,,,,can't find,
+,APTR,APTR,,True,,APTR,APTR,,APTR,,,,,,,HC,,,,,,,,,,,,,,APTR
+44I9.,PHOS,Phosphate,,True,,Phosphate,PHOS,,PHOS,,,IPHO,Inorganic Phosphate,IPHO,Inorganic Phosphate,HC,PHOSA,Phosphate,PHOSA,Phosphate,Y,,,,1857.0,PHOSPHATE,PHOSPHATE,1857.0,,PHOS
+43J5.,IGA,Immunoglobulin A,,True,,IgA,IGA,,IGA,,,CSA,Total serum IgA,CSA,Total serum IgA,HC,IGAA,IGA =,IGAA,IGA =,Y,HC,,,3031.0,IGA,IGA,3031.0,,IGA
+44Ce.,TTG,Serum tissue transglutaminase,,True,,Tissue Transglutaminase,TTG,,TTGA,,,,,TTGA,Tissu transglutaminase IgA lev,HC,,,TTG,Anti-Tissue Transglutaminase =,P,HC,,,,,TISSUE TRANSGLUTAMINASE ANTIBODY IGA,2370.0,different read code,TTG
+42Qu.,APTT,APTT Ratio,,True,,APTT Ratio,APT1,,APTT,,,PTTC,aPTT correction,PTTC,aPTT correction,HC,APTTR,APTT Ratio,APTTR,APTT Ratio,P,,,,,,APTT,291.0,,
+44a60,C125,CA 125,,True,,CA-125,C125,,C125,,,CA125,CA125,CA125,CA125,HC,CA125A,CA125,CA125A,CA125,P,,,,3136.0,CA 125,CA 125,3136.0,,C125
+44K5.,UA,Urate,,True,,Uric Acid,UA,,UA,,,UA,Serum Urate,UA,Serum Urate,HC,UAA,Uric Acid,UAA,Uric Acid,P,,UA1,,3232.0,URIC ACID,URIC ACID,3232.0,,UA
+44LD.,MG,Magnesium,,True,,Magnesium,MG,,MG,,,MAG,Serum Magnesium,MAG,Serum Magnesium,HC,MAGNA,Magnesium,MAGNA,Magnesium,Y,,,,1786.0,MAGNESIUM,MAGNESIUM,1786.0,,MG
+44PI.,LDL,"Cholesterol, LDL",44P6.,True,,LDL-Cholesterol,LDL,,LDL,,,,,LDL,Serum LDL cholesterol level,HC,,,LDLA,LDL - Cholesterol,P,HC,,,,,LDL CHOLO,3176.0,,LDL
+42Qf0,FDP,D Dimers,42Qf.,True,,D Dimers,FDP,,DDIM,,,,,FDP,Fibrinogen degrad. products,HC,,,DD,D-dimer,Y,HC,,,,,D-DIMER,296.0,different read code (level vs concentration 42Qf.),FDP
+43J3.,IGG,Immunoglobulin G,,True,,IgG,IGG,,IGG,,,FIG,Immunoglobulin G,FIG,Immunoglobulin G,HC,IGGA,IGG =,IGGA,IGG =,Y,HC,IGG,,1720.0,IGG,IGG,1720.0,,IGG
+43J4.,IGM,Immunoglobulin M,,True,,IgM,IGM,,IGM,,,FIM,Immunoglobulin M,FIM,Immunoglobulin M,HC,IGMA,IGM =,IGMA,IGM =,Y,HC,IGM,,1721.0,IGM,IGM,1721.0,,IGM
+44G9.,GGT,Gamma G.T.,,True,,Gamma G.T.,GGT,,GGT,,,GGT,GGT,GGT,GGT,HC,GGTA,Gamma Glutamyl Transpeptidase,GGTA,Gamma Glutamyl Transpeptidase,Y,HC,GGT,,1675.0,GAMMA GT,GAMMA GT,1675.0,,
+443h.,FSH2,FSH,,True,,F.S.H.,FSH2,,FSH,,,FSH,Serum FSH,FSH,Serum FSH,HC,,,FSHA,Follicle Stimulating Hormone,Y,HC,FSH,,1649.0,FSH,FSH,1649.0,,FSH2
+44HG.,CK,Creatine Kinase,,True,,C.K.,CK,,CK,,,CK,Serum CK,CK,Serum CK,HC,CKA,Creatine Kinase,CKA,Creatine Kinase,Y,HC,CK,,3182.0,TOTAL CK,TOTAL CK,3182.0,,CK
+4QB47,VITD,Vitamin D,,True,,Total 25-hydroxy Vitamin D,VD,,VTDT,,,,,TVD,Serum total 25-OH vit D level,HC,,,VTDT,Total Vitamin D2 + D3,P,HC,VITDA,,6669.0,25OH VITAMIN D (TOTAL),25OH VITAMIN D (TOTAL),6669.0,,VITD
+443e.,LH,LH (luteinising hormone),,True,,L.H.,LH2,,LH,,,LH,Serum LH,LH,Serum LH,HC,LHA,Luteinising Hormone,LHA,Luteinising Hormone,Y,HC,LH,,1768.0,LH,LH,1768.0,,LH
+44A1.,PTH,Parathyroid Hormone,44AJ1,True,,Parathyroid Hormone,PTH,,PTH,,,PTH,Serum Parathyroid Hormone,PTH,Serum Parathyroid Hormone,HC,,,PTHA,Parathyroid Hormone,P,HC,,,,,PARATHYROID HORMONE (PMOL/L),6457.0,measured in two different ways but identical test counts,PTH
+44AV.,NBNP,NTpro BNP,,True,,NTproBNP,NBNP,,NBNP,,,,,BNP,Se N-term pro BNP conc,HC,,,PROBNP,,,HC,,needs confirmation,1444.0,NT PRO BNP,NT PRO BNP,1444.0,,NBNP
+43c6.,RF,Rheumatoid Factor,43F..,True,,Rheumatoid Factor,RF,RHF,RF,,,RL,Serum Rheumatoid Screening Test,RL,Serum Rheumatoid Screening Test,HC,,,RF,,,,,,,,RHEUMATOID FACTOR,2342.0,,
+46N3.,UTP,Urine Total Protein,,True,,Urine Total Protein,UTP,,UP,,,UPC,Urine Protein Concentration,UPC,Urine Protein Concentration,HC,,,UPRA,Urine Protein,Y,HC,UP,possible,,,,,can't find,UTP
+443j.,PRL3,Prolactin,,True,,Prolactin,PRL3,,PROL,,,PROLZ,Prolactin,PROLZ,Prolactin,HC,PRLA,Prolactin,PRLA,Prolactin,P,HC,PROLA,,3055.0,PROLACTIN,PROLACTIN,3055.0,,PRL3
+44HF.,LDH,LDH,,True,,L.D.H.,LDH,,LDH,,,LDH,LDH,LDH,LDH,HC,LDHA,Lactate Dehydrogenase,LDHA,Lactate Dehydrogenase,Y,HC,LDH,,,,,,can't find,LDH
+44I7.,HCO3,Bicarbonate,,True,,Bicarbonate,HCO3,,BIC,,,BIC,Bicarbonate,BIC,Bicarbonate,HC,BICA,Bicarbonate,BICA,Bicarbonate,P,HC,BIC,,,,Serum bicarbonate,1440.0,(not in test counts),HCO3
+44W8.,LITH,Lithium,,True,,Lithium,LITH,,LI,,,LI,Serum Lithium,LI,Serum Lithium,HC,LITHA,Lithium,LITHA,Lithium,P,HC,LITH,,1772.0,LITHIUM,LITHIUM,1772.0,,
+42X..,RETIC,Reticulyte Count,,True,,Retic. count,RET#,,RETA,,,RETC,Retic absolute,RETC,Retic absolute,HC,RETIC3,Reticulocytes,RETIC3,Reticulocytes,P,HC,RETIC,,,,,,can't find,
+4473,TEST,Testosterone,,True,,Testosterone,TEST,,TEST,,,,,TEST,Serum testosterone,HC,,,TESTA,Testosterone,P,HC,TEST1,,1980.0,TESTOSTERONE (MALE-ADULT),TESTOSTERONE (MALE-ADULT),1980.0,,TEST
+42bC.,RETP,Reticulyte Percent,,True,,Retics %,RET%,,RETP,,,RETP,Retic %,RETP,Retic %,HC,,,,,,,,,,,,,can't find,
+44Z3.,HCG,"hCG, Total",445..,True,,Blood HCG,HCG,,HCG,,,,,HCG,Serum pregnancy test (B-HCG),HC,,,,,,,,,,,Serum pregnancy test (B-HCG),3495.0,,HCG
+46O3.,UBJP,Urine Bence-Jones Protein,,True,,Urine Bence-Jones Protein,UBJP,,BJP,,,,,,,HC,,,,,,,,,2037.0,URINE ELECTROPHORESIS(BENCE JONES PROTEIN),URINE ELECTROPHORESIS(BENCE JONES PROTEIN),2037.0,,UBJP
+43mZ.,ACCP,Anti-CCP,43rW.,True,,Anti-CCP,ACCP,,ACCP,,,,,CCPA,Anti-CCP antibody level,HC,,,,,,,,,,,Se anti-CCP antibody level,2235.0,(not in test counts),
+43A..,GF,Glandular Fever Screen,,True,,Glandular Fever Screen,GF,,GF,,,IM,IM Screen,IM,IM Screen,HC,,,,,,,,,304.0,IM,IM,304.0,,GF
+442U.,FT3,Free T3,,True,,Free T3,FT3,,FT3,,,FT3,Free T3,FT3,Free T3,HC,FT3A,Free T3,FT3A,Free T3,Y,HC,FT3,,,,Serum free T3 level,1653.0,,FT3
+44HB.,AST,AST,,True,,A.S.T.,AST,,AST,,,ASTA,AST,ASTA,AST,HC,ASTA,Aspartate Transaminase,ASTA,Aspartate Transaminase,Y,,,,1425.0,ASPARTATE TRANSAMINASE,ASPARTATE TRANSAMINASE,1425.0,,AST
+43Gv.,ADNA,ADNA,,True,,Anti-double stranded DNA,ADNA,,DNAA?,,,DN,Serum DNA Antibodies,DN,Serum DNA Antibodies,HC,,,,,,,,,,,dsDNA binding autoantibody lev,2252.0,(not in test counts),
+4474,FAI,Free Androgen Index,,True,,Free Androgen Index,FAI,,FAI,,,,,FAI,Free androgen index,HC,FAIA,Free Androgen Index,FAIA,Free Androgen Index,P,,,,,,,,can't find,FAI
+44CD.,SHBG,Sex Hormone Binding Globulin,,True,,Sex Hormone Binding Globulin,SHBG,,SHBG,,,SHBG,SHBG,SHBG,SHBG,HC,SHA,Sex Hormone Binding Globulin,SHA,Sex Hormone Binding Globulin,P,,,,1934.0,SEX HORMONE BINDING GLOBULIN,SEX HORMONE BINDING GLOBULIN,1934.0,,
+4482,CORT,Cortisol,,True,,Cortisol,CORT,,CORT,,,,,CORT,Serum cortisol,HC,CORTA,Serum Cortisol,CORTA,Serum Cortisol,P,,,,1551.0,CORTISOL,CORTISOL,1551.0,,CORT
+43N..,ENA,Extractable Nuclear Antigen,,True,,Extractable Nuclear Antigen,ENA,,ENA,,,ENT,Extractable Nuclear Antigen Typing,ENT,Extractable Nuclear Antigen Typing,HC,,,,,,,,,,,,,,
+42B6.,ESR,Erythrocyte sedimentation rate,,True,,Erythrocyte sedimentation rate,ESR,,ESR,,,E,ESR,E,ESR,HC,,,,,,,,,299.0,ESR 1 HR,ESR 1 HR,299.0,,
+43G3.,ASM,Anti-Smooth Muscle,,True,,Anti-Smooth Muscle,ASM,,ASM,,,SMO,Smooth Muscle autoantibodies,SMO,Smooth Muscle autoantibodies,HC,,,,,,,,,,,,,,
+42R7.,IRO2,Serum Iron,,True,,Serum Iron,IRO2,,IRON,,,IRO,Serum Iron Test,IRO,Serum Iron Test,HC,IRONA,Iron,IRONA,Iron,P,HC,IRON,,1731.0,SERUM IRON,SERUM IRON,1731.0,,IRO2
+44Wl.,THEO,Theophylline,,True,,Theophylline,THEO,,THEO,,,THEO,Serum Theophylline,THEO,Serum Theophylline,HC,THEOA,Theophylline,THEOA,Theophylline,P,,,,,,,,,
+44J4.,OSMO,Osmolality,,True,,Osmolality,OSMO,,OSMO,,,OSM,Osmolality,OSM,Osmolality,HC,OSM,Osmolality (Serum),OSM,Osmolality (Serum),Y,,,,,,,,,
+46M3.,UK,Urine Potassium (random),,True,,Urine Potassium,UK,,UK,,,UPOT,Urine potassium,UPOT,Urine potassium,HC,UKA,Urine Potassium,UKA,Urine Potassium,Y,,,,,,,,,
+46M4.,UNA,Urine Sodium (random),,True,,Urine Sodium,UNA,,UNA,,,USOD,Urine sodium,USOD,Urine sodium,HC,UNAA,Urine Sodium,UNAA,Urine Sodium,Y,,,,,,,,,
+43J7.,IGE,IgE,,True,,IgE,IGE,,IGE,,,,,,,HC,IGE,Total IgE,IGE,Total IgE,P,,,,,,,,,
+47J..,FCPT,FCPT,,True,,Faecal Calprotectin,FCPT,,,,,,,,,HC,,,CALP,Faecal Calprotectin,P,,,,,,FAECAL CALPROTECTIN,1594.0,,FCPT
+43I1.,C3,C3,,True,,C3,C3,,C3,,,C3,Complement C3,C3,Complement C3,HC,C3A,Complement C3,C3A,Complement C3,P,,,,,,,,,
+43I2.,C4,C4,,True,,C4,C4,,C4,,,C4,Complement C4,C4,Complement C4,HC,C4A,Complement C4,C4A,Complement C4,P,,,,,,,,,
+43GY.,ANCA,ANCA,,True,,Anti-Neutrophil Cytoplasmic Ab,ANCA,,ANCA,,,NCA,Anti-Neutrophil Cytoplasmic Antibod,NCA,Anti-Neutrophil Cytoplasmic Antibod,HC,,,,,,,,,,,,,,
+46MB.,UOSM,Urine Osmolality,,True,,Urine Osmolality,UOSM,,UOSM,,,UOSM,Urine osmolality,UOSM,Urine osmolality,HC,UOSM,Urine Osmolality,UOSM,Urine Osmolality,Y,,,,,,,,,
+44Wc.,TACR,TACR,,True,,Tacrolimus,TACR,,TACR,,,,,,,HC,,,,,,,,,,,,,,
+,REJ,REJ,,True,,Rejected Pathology Request,REJ,,REJ,,,,,,,HC,,,,,,,,,,,,,,
+43GY0,CANC,CANC,,True,,c-ANCA,CANC,,CANC,,,NCA,Anti-Neutrophil Cytoplasmic Antibod,NCA,Anti-Neutrophil Cytoplasmic Antibod,HC,,,,,,,,,,,,,,
+43GY1,PANC,PANC,,True,,p-ANCA,PANC,,PANC,,,NCA,Anti-Neutrophil Cytoplasmic Antibod,NCA,Anti-Neutrophil Cytoplasmic Antibod,HC,,,,,,,,,,,,,,
+44C5.,CAER,CAER,,True,,Caeruloplasmin,CAER,,CAER,,,ACER,Serum Caeruloplasmin,ACER,Serum Caeruloplasmin,HC,CUOX,Caeruloplasmin,CUOX,Caeruloplasmin,Y,,,,1523.0,CAERULOPLASMIN,CAERULOPLASMIN,1523.0,,
+44W9.,DIG,Digoxin,,True,,Digoxin,DIG,,DIG,,,DIG,Serum Digoxin,DIG,Serum Digoxin,HC,DXA,Digoxin,DXA,Digoxin,Y,,,,,,,,,
+44D8.,LACT,Lactate,,True,,Lactate,LACT,,LACT,,,LAC,Plasma Lactate,LAC,Plasma Lactate,HC,,,,,,,,,,,,,,
+44CH.,ACE,ACE,,True,,Angiotensin Converting Enzyme,ACE,,ACE,,,ACE,Serum Angiotensin Converting Enzyme,ACE,Serum Angiotensin Converting Enzyme,HC,,,,,,,,,,,,,,
+,FPS,Free Protein S Antigen,,True,,Free Protein S,FPS,,FPS,,,,,,,HC,,,,,,,,,,,,,,
+,MAST,MAST,,True,,Mast Cell Tryptase,MAST,,MAST,,,,,MAST,Serum tryptase level,HC,,,,,,,,,,,,,,
+44L5.,VITA,VITA,,True,,Vitamin A,VITA,,VITA,,,DVITA,Vitamin A,DVITA,Vitamin A,HC,VTMA,Vitamin A,VTMA,Vitamin A,P,,,,,,,,,
+44LB.,VITE,VITE,,True,,Vitamin E,VITE,,VITE,,,VITE,Serum Vitamin E,VITE,Serum Vitamin E,HC,,,VITE,Vitamin E,Y,,,,,,,,,
+44a30,C199,C199,,True,,CA-19-9,C199,,C199,,,CA1909,CA 19-9,CA1909,CA 19-9,HC,,,,,,,,,,,,,,
+,PCO2,PCO2,,True,,Carbon Dioxide (pCO2),PCO2,,PCO2,,,,,,,HC,,,,,,,,,,,,,,
+,PO2,PO2,,True,,Oxygen (pO2),PO2,,PO2,,,,,,,HC,,,,,,,,,,,,,,
+,SBIC,SBIC,,True,,Standard Bicarbonate (calc),SBIC,,SBIC,,,,,,,HC,,,,,,,,,,,,,,
+42Qa.,PC,Protein C,,True,,Protein C Activity,PC,PCS,PC,,,,,PC,Protein C level,HC,,,,,,,,,,,,,,
+,AMH,AMH,,True,,Anti-Mullerian Hormone,AMH,,AMH,,,,,AMH,Anti-Mullerian hormone level,HC,,,,,,,,,,,,,,
+,IA2,IA2,,True,,IA-2 Antibodies,IA2,,IA2,,,,,,,HC,,,,,,,,,,,,,,
+44W43,VALP,VALP,,True,,Valproate,VALP,,VALP,,,VALP,Serum Valproic Acid,VALP,Serum Valproic Acid,HC,VALPA,Valproate,VALPA,Valproate,Y,,,,,,,,,
+,C1EF,C1EF,,True,,C1-Esterase Inhibitor (Func) %,C1EF,,C1EF,,,,,,,HC,,,,,,,,,,,,,,
+,C1EI,C1EI,,True,,C1-Esterase Inhibitor (g/L),C1EI,,C1EI,,,,,,,HC,,,,,,,,,,,,,,
+,VWAG,Von Willebrand Antigen,,True,,VWF Antigen,VWAG,,VWAG,,,,,,,HC,,,,,,,,,,,,,,
+,ZNT8,ZNT8,,True,,Zinc Transporter 8 Abs,ZNT8,,ZNT8,,,,,,,HC,,,,,,,,,,,,,,
+44WY.,GENT,Gentamicin,,True,,Gentamicin,GENT,,GENT,,,GENT,Gentamicin,GENT,Gentamicin,HC,,,,,,,,,,,,,,
+,JAK2,JAK2,,True,,Janus-activated kinase,JAK2,,JAK2,,,,,JAK2,JAK2 V617F mutation analysis,HC,,,,,,,,,,,,,,
+46R3.,UPOR,UPOR,,True,,Urine Total Porphyrins,UPOR,,UPOR,,,UPORQS,RANDOM URINE PORPHYRINS,UPORQS,RANDOM URINE PORPHYRINS,HC,,,,,,,,,,,,,,
+,UCP,UCP,,True,,Urine C-peptide,UCP,,UCP,,,,,,,HC,,,,,,,,,,,,,,UCP
+44X7.,CO,CO,,True,,Carbon Monoxide,CO,,CO,,,,,CO,Complement test,HC,,,CO,Carboxy Haemoglobin,Y,,,,,,,,,
