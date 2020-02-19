@@ -146,6 +146,7 @@ def standard_convert_to_result(row, ranges):
                             break
                         else:
                             log_warning(
+                                row,
                                 "Within range %s-%s but direction %s; invalid",
                                 low,
                                 high,
