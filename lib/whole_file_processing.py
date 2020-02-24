@@ -86,7 +86,9 @@ def combine_and_append_csvs(lab):
             merged = existing
         new_final_count = merged[merged["month"] == final_month].count().iloc[0]
         assert (new_final_count - final_count) < 0.2 * final_count, (
-            "Number of tests in month {} increased by more than 20%".format(final_month)
+            "Number of tests in month {} increased by more than 20% in {}".format(
+                final_month, all_results_path
+            )
             # Why 20%? Normally data is provided as one file per
             # month, but at some month boundaries (e.g. Dec/Jan) it's
             # not unusual to have a load of tests ordered in one month

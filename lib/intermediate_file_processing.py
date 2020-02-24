@@ -201,9 +201,10 @@ def make_intermediate_file(
     writer = csv.writer(outfile)
     first_dates = Counter()
     validated = False
+    dates_counter = 0
 
     # Execute a range of operations, per-row
-    for i, row in enumerate(row_iterator(filename)):
+    for row in row_iterator(filename):
         try:
             drop_unwanted_data(row)
             row = normalise_data(row)
@@ -224,9 +225,10 @@ def make_intermediate_file(
                     missing_keys
                 )
                 validated = True
-            if i < 1000:
+            if dates_counter < 200:
                 # find most common date in this file, for naming
                 first_dates[row["month"]] += 1
+                dates_counter += 1
             # Only output the columns we care about
             subset = [row[k] for k in settings.REQUIRED_NORMALISED_KEYS]
             writer.writerow(subset)
