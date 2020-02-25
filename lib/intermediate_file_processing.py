@@ -233,28 +233,34 @@ def make_intermediate_file(
             subset = [row[k] for k in settings.REQUIRED_NORMALISED_KEYS]
             writer.writerow(subset)
     outfile.flush()
-
-    # Compute an unused filename that reflects its contents to some degree
-    try:
-        most_common_date = first_dates.most_common(1)[0][0]
-    except IndexError:
-        log_warning({}, f"Unable to find date in {filename}")
-        most_common_date = "unknown_date"
-    converted_basename = "{}converted_{}_{}".format(
-        settings.ENV, lab, most_common_date.replace("/", "_")
-    )
-    dupes = 0
-    if os.path.exists(settings.INTERMEDIATE_DIR / "{}.csv".format(converted_basename)):
-        dupes += 1
-        candidate_basename = "{}_{}".format(converted_basename, dupes)
-        while os.path.exists(
-            settings.INTERMEDIATE_DIR / "{}.csv".format(candidate_basename)
+    if not validated:
+        log_warning({}, "No valid rows found in {}; deleting".format(filename))
+        # Usually because the file is too old
+        os.remove(filename)
+    else:
+        # Compute an unused filename that reflects its contents to some degree
+        try:
+            most_common_date = first_dates.most_common(1)[0][0]
+        except IndexError:
+            log_warning({}, f"Unable to find date in {filename}")
+            most_common_date = "unknown_date"
+        converted_basename = "{}converted_{}_{}".format(
+            settings.ENV, lab, most_common_date.replace("/", "_")
+        )
+        dupes = 0
+        if os.path.exists(
+            settings.INTERMEDIATE_DIR / "{}.csv".format(converted_basename)
         ):
             dupes += 1
             candidate_basename = "{}_{}".format(converted_basename, dupes)
-        converted_basename = candidate_basename
-    converted_filename = "{}.csv".format(converted_basename)
-    converted_filepath = str(settings.INTERMEDIATE_DIR / converted_filename)
-    os.rename(outfile.name, converted_filepath)
-    mark_as_processed(lab, filename, converted_filepath)
-    return converted_filepath
+            while os.path.exists(
+                settings.INTERMEDIATE_DIR / "{}.csv".format(candidate_basename)
+            ):
+                dupes += 1
+                candidate_basename = "{}_{}".format(converted_basename, dupes)
+            converted_basename = candidate_basename
+        converted_filename = "{}.csv".format(converted_basename)
+        converted_filepath = str(settings.INTERMEDIATE_DIR / converted_filename)
+        os.rename(outfile.name, converted_filepath)
+        mark_as_processed(lab, filename, converted_filepath)
+        return converted_filepath
