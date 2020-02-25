@@ -114,7 +114,7 @@ def convert_to_result(row, ranges):
     ref_range = row["Reference Range"]
     if not ref_range:
         row["result_category"] = ERR_NO_REF_RANGE
-        return
+        return row
     return_code = None
     try:
         low, high = [float(x) for x in ref_range.split("{")]
@@ -124,7 +124,7 @@ def convert_to_result(row, ranges):
     if not isinstance(result, float):
         log_info(row, "Unparseable result")
         row["result_category"] = ERR_UNPARSEABLE_RESULT
-        return
+        return row
     if high:
         if result > high:
             if direction == "<":
