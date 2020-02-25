@@ -138,10 +138,16 @@ def do_process(args):
             reimport=args.reimport,
             yes=args.yes,
         )
+    # Although we've processed individual labs, we always update / create
     done_something = False
     for lab in labs.keys():
+        # This creates a `combined` file from `converted` files (and
+        # any existing `combined` file)
         merged = combine_and_append_csvs(lab)
+        # This creates `processed` files in intermediate folder from
+        # `combined` ones
         done_something = normalise_and_suppress(lab, merged) or done_something
+    # This merges (and deletes) the `processed` files
     combined = make_final_csv()
     if done_something:
         print("Final data at {}".format(combined))
