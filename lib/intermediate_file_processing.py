@@ -46,7 +46,7 @@ NO_REF_RANGES = set()
 
 
 def skip_old_data(row):
-    if row["month"] < settings.DATE_FLOOR.strftime("%Y/%m/%d"):
+    if row["month"] < settings.DATE_FLOOR:
         raise StopProcessing()
 
 

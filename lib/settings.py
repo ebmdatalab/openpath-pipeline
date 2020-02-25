@@ -1,7 +1,7 @@
 """Variables used in data processing
 """
-from datetime import date
 from pathlib import Path
+import datetime
 import logging
 import os
 
@@ -57,7 +57,7 @@ ERROR_CODE_NAMES = {
 }
 
 # Never process dates older than this date
-DATE_FLOOR = date.today() - relativedelta(years=5)
+DATE_FLOOR = (datetime.date.today() - relativedelta(years=5)).strftime("%Y/%m/01")
 
 # The keys that every anonymiser_config must export
 REQUIRED_NORMALISED_KEYS = ["month", "test_code", "practice_id", "result_category"]
@@ -75,9 +75,9 @@ ENV = os.environ.get("OPATH_ENV", "")
 
 def _date_dtype():
     # Build categorical values for months
-    month = DATE_FLOOR
+    month = datetime.datetime.strptime(DATE_FLOOR, "%Y/%m/%d").date()
     month_categories = []
-    while month <= date.today():
+    while month <= datetime.date.today():
         month_categories.append(month.strftime("%Y/%m/01"))
         month += relativedelta(months=1)
     return CategoricalDtype(categories=month_categories, ordered=False)
