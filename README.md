@@ -12,7 +12,7 @@ witin `data_sources/`, along with a bit of config in `lib.settings`
 
     PYTHONPATH=.  python runner.py fetch
 
-And then commit the resulting files (in `final_data/`)
+And then commit the resulting files (in `final_data/`).
 
 
 # Data source anonymisation
@@ -25,21 +25,40 @@ To run against sample / test data (no-multiprocessing makes debugging easier):
 
     PYTHONPATH=. LOG_LEVEL=DEBUG python runner.py process cambridge --no-multiprocessing --reimport --single-file=data_sources/cambridge/example.csv
 
-The runner is idempotent; current progress is recorded in a SQLite
-database. Only new, unprocessed files are processed in a normal run. A
-`--reimport` switch indicates everything should be wiped and started
-from the beginnging
+The runner is idempotent; current progress is (awkwardly) recorded in
+a SQLite database and files in `intermediate_files/`. Only new,
+unprocessed files are processed in a normal run. A `--reimport` switch
+indicates everything should be wiped and started from the beginnging
 
-Files named `intermediate_files/combined_<lab_id>.csv` are kept after
-each run, so new data can be appended to these files.
+Successul runs finish with most intermediate files being deleted;
+however, files named `intermediate_files/combined_<lab_id>.csv` are
+kept after each run, so new data can be appended to these files
+incrementally.  These files are kept because whole-dataset operations
+(e.g. low number suppression) must be run after each new set of data
+is appended
 
-A complete set of intermediate data is required to run whole-dataset
-operations after each new set of data is appended (such as low number
-suppression)
+
+### Intermediate file tracking
+
+The awkwardness mentioned above is an artefact of it being useful to
+split operations into monthly files during the development process,
+and not having time to furter refactor. If we return to this project,
+I'd start by refactoring the intermediate file tracking.
+
+To summarise what can end up in there:
+
+* `converted_*` are the outputs of each file having been processed. These are stored in INTERMEDIATE_DIR and recored in sqlite, and deleted when they've been `merged` (see the next step)
+* These individual files are combined into a single `combined` file and marked in sqlite as `merged`.
+* Single `combined` files are anonymised and so on to a format suitable for the website, and output as `processed_*` files (one per lab)
+* Each processed file is combined to an `all_processed.csv.zip` file in `final_data/`.
 
 
-# Making a data source
+These files
+should be places in the dokku storage for the openpath-dash app (at
+the time of writing,
+`root@dokku.embdatalab.net:/var/lib/dokku/data/storage/openpath-dash/data_csvs`)
 
+# Making a  new data source
 
 A data source is a package within `data_sources/`,
 (e.g. `data_sources/north_devon/`)
@@ -55,12 +74,21 @@ because a value was non-numeric).
 
 ## Checklist for a new data source
 
+The department manage a file hosting service called
+[Filr](https://filr.imsu.ox.ac.uk) (credentials in LastPass). We
+create a new folder for each new lab, and then grant external access
+to one or more people in that lab to that folder.
+
+Our VM is set up to sync data from filr to `/home/filr/`.
+
+Once data is available there, do the following steps to develop a new data source:
+
 * On the secure server:
   * Check you can extract raw files
   * Review file format. Make notes in a README in `data_sources/<lab_id>`.  This is easiest in a python console using pandas and dataframe inspection
   * If reference ranges are required, obtain a file, and create a normalised version (see [here](https://github.com/ebmdatalab/openpath-pipeline/blob/0d378e18b6581ecb1e588cb50d129487de927623/lib/intermediate_file_processing.py#L64-L74) for notes). This is currently done by Helen, and should be done using a script ([example](https://github.com/ebmdatalab/openpath-pipeline/blob/0d378e18b6581ecb1e588cb50d129487de927623/data_sources/cornwall/generate_ranges.py))
   * Save any supplementary files (reference ranges, test metadata) in the same location, and also note in the README
-  * Make an anonymised sample, preferably by writing some code (see Exeter for example):
+  * Make an anonymised sample, preferably by writing some code (see Exeter for an example):
     * Replace any patient identifiers with random strings (or one random string)
     * Jitter or randmise any patient ages by several years
     * Jitter any sample / result dates by several years
@@ -102,6 +130,7 @@ want to implement:
 
 A data source should also include a README, and any CSVs and other
 related material to help developers understand the data.
+
 
 ## Reference Range CSVs
 
