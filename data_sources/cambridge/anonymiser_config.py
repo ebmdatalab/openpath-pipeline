@@ -45,7 +45,7 @@ def drop_unwanted_data(row):
         practice)
         """
     if not row["CollectedDateTime"]:
-        log_warning("Empty date")
+        log_warning(row, "Empty date")
         raise StopProcessing()
     if not row["Patient Age"] or row["Patient Age"] < "18":
         raise StopProcessing()
